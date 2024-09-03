@@ -3,7 +3,7 @@ import json
 
 from schedules import schedules
 
-schedule_to_analyze = 0
+schedule_to_analyze = 1
 
 blind_write = False
 info = (0, [])
@@ -19,7 +19,7 @@ Nella forma di  (per due transazioni e due elementi):
     ]
 }
 '''
-graph = []
+transaction_graph = []
 '''
 Nella forma di (per due transazioni e due elementi):
 [
@@ -86,7 +86,7 @@ def parse(or_schedule, n_transactions, elements):
     #Initialization
     schedule = deepcopy(or_schedule)
     for i in range(0, n_transactions):
-        graph.append([False for j in range (0, n_transactions)])
+        transaction_graph.append([False for j in range (0, n_transactions)])
         read_from[str(i)] = {}
         to_serial[str(i)] = []
     for element in elements:
@@ -108,9 +108,8 @@ def parse(or_schedule, n_transactions, elements):
             for prior_action in elements_touched_transactions[element]:
                 other_transaction = prior_action[0]
                 other_type = prior_action[1]
-                if other_transaction != transaction and (other_type == "W" or type_action == "W"):
-                    graph[int(other_transaction)][int(transaction)] = True
-                    break
+                if other_transaction != transaction and transaction_graph[int(other_transaction)][int(transaction)] == False and (other_type == "W" or type_action == "W"):
+                    transaction_graph[int(other_transaction)][int(transaction)] = True
                     
             elements_touched_transactions[element].add((transaction, element))
             if type_action == "W":
@@ -119,6 +118,9 @@ def parse(or_schedule, n_transactions, elements):
                 final_write[element] = transaction
             else:
                 read_from[transaction][element] = final_write[element]
+                
+            if check_conflict_serializability(transaction_graph) and not blind_write:
+                return False
                 
         to_serial[transaction].append(action)
 
@@ -176,7 +178,7 @@ def parse_and_create(schedule):
     with open(str(schedule_to_analyze) + '.json', 'w') as f:
         data = {
                 "blind_write" : blind_write,
-                "graph" : graph,
+                "graph" : transaction_graph,
                 "read_from" : read_from,
                 "final_write" : final_write,
         }
