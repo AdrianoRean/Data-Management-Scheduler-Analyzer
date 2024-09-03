@@ -3,9 +3,10 @@ import json
 
 from schedules import schedules
 
-schedule_to_analyze = 1
+schedule_to_analyze = 0
 
 blind_write = False
+conflict_serializable = True
 info = (0, [])
 elements_touched_transactions = {}
 '''
@@ -81,6 +82,38 @@ Nella forma di (per due transazioni e due elementi):
 }
 '''
 
+def check_conflict_serializability(graph, n_transaction):
+    visited = {}
+    remaining = []
+    for i in range(0,n_transaction):
+        remaining.append(i)
+        visited[i] = False
+    
+    actual_node = remaining.pop()
+    visited[actual_node] = True
+    
+    while True:
+        if check_cycle(graph, n_transaction, actual_node, visited, remaining):
+            return False
+        else:
+            if remaining != []:
+                actual_node = remaining.pop()
+                visited[actual_node] = True
+            else:
+                return True
+    
+def check_cycle(graph, n_transaction, actual_node, visited, remaining):
+    for next_node in range(0, n_transaction):
+        if graph[actual_node][next_node] == True:
+            if not visited[next_node]:
+                visited[next_node] = True
+                remaining.remove(next_node)
+                if check_cycle(graph, n_transaction, next_node, visited, remaining):
+                    return True
+            else:
+                return True
+    return False
+            
 def parse(or_schedule, n_transactions, elements):
     
     #Initialization
@@ -118,9 +151,6 @@ def parse(or_schedule, n_transactions, elements):
                 final_write[element] = transaction
             else:
                 read_from[transaction][element] = final_write[element]
-                
-            if check_conflict_serializability(transaction_graph) and not blind_write:
-                return False
                 
         to_serial[transaction].append(action)
 
@@ -173,10 +203,12 @@ def generate_serial(remaining, order, n_transactions, elements):
 def parse_and_create(schedule):
     info = schedule.pop(0)
     parse(schedule, info[0], info[1])
+    conflict_serializable = check_conflict_serializability(transaction_graph,info[0])
     generate_serial([str(transaction) for transaction in range (0, info[0])],[], info[0], info[1])
     
     with open(str(schedule_to_analyze) + '.json', 'w') as f:
         data = {
+                "conflict_serializable" : conflict_serializable,
                 "blind_write" : blind_write,
                 "graph" : transaction_graph,
                 "read_from" : read_from,

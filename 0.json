@@ -1,4 +1,5 @@
 {
+    "conflict_serializable": false,
     "blind_write": false,
     "graph": [
         [
