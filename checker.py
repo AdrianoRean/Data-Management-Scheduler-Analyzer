@@ -29,3 +29,11 @@ def check_cycle(graph, n_transaction, actual_node, visited, remaining):
             else:
                 return True
     return False
+
+def check_view_serializabilty(read_from, final_write, serial_schedules):
+    for schedule in serial_schedules:
+        print(schedule)
+        if read_from == schedule["read_from"] and final_write == schedule["final_write"]:
+            return True
+    else:
+        return False

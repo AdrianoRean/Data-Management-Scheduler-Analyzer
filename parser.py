@@ -3,9 +3,7 @@ import json
 
 from schedules import schedules
 
-schedule_to_analyze = 0
-
-blind_write = False
+blind_write = True
 conflict_serializable = True
 info = (0, [])
 elements_touched_transactions = {}
@@ -114,8 +112,9 @@ def parse(or_schedule, n_transactions, elements):
                     
             elements_touched_transactions[element].add((transaction, element))
             if type_action == "W":
-                if read_from[transaction][element] == "":
-                    blind_write = True
+                if read_from[transaction][element] != None:
+                    blind_write = False
+                    print('ao')
                 final_write[element] = transaction
             else:
                 read_from[transaction][element] = final_write[element]
