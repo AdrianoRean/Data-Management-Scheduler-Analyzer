@@ -48,6 +48,22 @@ Nella forma di  (per due transazioni e due elementi):
     "element_2" : transaction_1
 }
 '''
+blind_writes = {}
+'''
+Nella forma di  (per due transazioni e due elementi):
+{
+    "element_1" : {
+        transaction_0 : True,
+        transaction_1 : None
+    },
+    "element_2" : {
+        transaction_0 : None,
+        transaction_1 : False
+    }
+}
+'''
+
+#Si potrebbe cercare di legare i cicli a se sono blind o meno, così si fa il check di view in maniera piu mirata.
 
 to_serial = {}
 '''
