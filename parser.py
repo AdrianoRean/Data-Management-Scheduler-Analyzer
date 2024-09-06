@@ -130,7 +130,6 @@ def parse(or_schedule, n_transactions, elements):
             if type_action == "W":
                 if read_from[transaction][element] != None:
                     blind_write = False
-                    print('ao')
                 final_write[element] = transaction
             else:
                 read_from[transaction][element] = final_write[element]
