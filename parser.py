@@ -3,6 +3,9 @@ import json
 
 from schedules import schedules
 
+#Assunzione che nessuna transazione legge o scrive due volte stesso elemento, nè legge dopo aver scritto.
+#Anche, se un grafo orientato ha un ciclo, anche il grafo inversamente orientato ha lo stesso ciclo.
+
 blind_write = True
 conflict_serializable = True
 info = (0, [])
@@ -10,21 +13,15 @@ elements_touched_transactions = {}
 '''
 Nella forma di  (per due transazioni e due elementi):
 {
-    "element_1" : [
-        (transaction_0, "W")
-    ],
-    "element_2" : [
-        (transaction_1, "R"), (transaction_1, "W"), (transaction_0, "R")
-    ]
+    "element_1" : {
+        "Reads" : [],
+        "Writes" [transaction_0]
+    }
+    "element_2" : {
+        "Reads" : [transaction_1, transaction_0],
+        "Writes" [transaction_1]
+    }
 }
-'''
-transaction_graph = []
-'''
-Nella forma di (per due transazioni e due elementi):
-[
-    [False, False],
-    [True, False]
-]
 '''
 read_from = {}
 '''
@@ -40,26 +37,28 @@ Nella forma di (per due transazioni e due elementi):
     }
 }
 '''
+remaining_conflicts = {}
+'''
+Nella forma di (per due transazioni e due elementi):
+{
+    "transaction_0" : []
+    "transaction_1" : [transaction_0]
+}
+'''
+conflicts = {}
+'''
+Nella forma di (per due transazioni e due elementi):
+{
+    "transaction_0" : [transaction_1]
+    "transaction_1" : []
+}
+'''
 final_write = {}
 '''
 Nella forma di  (per due transazioni e due elementi):
 {
     "element_1" : transaction_0,
     "element_2" : transaction_1
-}
-'''
-blind_writes = {}
-'''
-Nella forma di  (per due transazioni e due elementi):
-{
-    "element_1" : {
-        transaction_0 : True,
-        transaction_1 : None
-    },
-    "element_2" : {
-        transaction_0 : None,
-        transaction_1 : False
-    }
 }
 '''
 
@@ -101,15 +100,19 @@ def parse(or_schedule, n_transactions, elements):
     #Initialization
     schedule = deepcopy(or_schedule)
     for i in range(0, n_transactions):
-        transaction_graph.append([False for j in range (0, n_transactions)])
-        read_from[str(i)] = {}
-        to_serial[str(i)] = []
+        read_from[i] = {}
+        to_serial[i] = []
+        remaining_conflicts[i] = [j for j in range (0, n_transactions)]
+        remaining_conflicts[i].remove(i)
+        conflicts[i] = []
+        
     for element in elements:
-        elements_touched_transactions[element] = set([])
+        elements_touched_transactions[element] = {}
         final_write[element] = None
         for i in range(0, n_transactions):
-            read_from[str(i)][element] = None
-        
+            read_from[i][element] = None
+            elements_touched_transactions[element]['Reads'] = set([])
+            elements_touched_transactions[element]['Writes'] = set([])
     
     #Actual Parsing
     for action in schedule:
@@ -120,21 +123,39 @@ def parse(or_schedule, n_transactions, elements):
         
         if element != "":
             
-            for prior_action in elements_touched_transactions[element]:
-                other_transaction = prior_action[0]
-                other_type = prior_action[1]
-                if other_transaction != transaction and transaction_graph[int(other_transaction)][int(transaction)] == False and (other_type == "W" or type_action == "W"):
-                    transaction_graph[int(other_transaction)][int(transaction)] = True
-                    
-            elements_touched_transactions[element].add((transaction, element))
+            for other_transaction in remaining_conflicts[transaction]:
+                if other_transaction in elements_touched_transactions[element]["Writes"]:
+                    conflicts[transaction].append(other_transaction)
+                    remaining_conflicts[transaction].remove(other_transaction)
+                
+            
             if type_action == "W":
-                if read_from[transaction][element] != None:
-                    blind_write = False
+                elements_touched_transactions[element]["Writes"].add(transaction)
                 final_write[element] = transaction
+                for other_transaction in remaining_conflicts[transaction]:
+                    if other_transaction in elements_touched_transactions[element]["Reads"]:
+                        conflicts[transaction].append(other_transaction)
+                        remaining_conflicts[transaction].remove(other_transaction)
             else:
+                elements_touched_transactions[element]["Reads"].add(transaction)
                 read_from[transaction][element] = final_write[element]
                 
         to_serial[transaction].append(action)
+
+def create_conflict_list(list_conflict_inverted, n_transactions):
+    
+    conflict_list = {}
+    
+    for i in range(0, n_transactions):
+        conflict_list[i] = []
+        
+    for i in range(0, n_transactions):
+        c_list = list_conflict_inverted[i]
+        
+        for other_transaction in c_list:
+            conflict_list[other_transaction].append(i)
+            
+    return conflict_list
 
 def parse_serial(schedule_name, n_transactions, elements):
     #Initialization
@@ -143,11 +164,11 @@ def parse_serial(schedule_name, n_transactions, elements):
     serial_final_write = serial_schedules[schedule_name]["final_write"]
     
     for i in range(0, n_transactions):
-        serial_read_from[str(i)] = {}
+        serial_read_from[i] = {}
     for element in elements:
         serial_final_write[element] = None
         for i in range(0, n_transactions):
-            serial_read_from[str(i)][element] = None
+            serial_read_from[i][element] = None
         
     #Actual Parsing
     for action in schedule:
@@ -166,9 +187,10 @@ def generate_serial(remaining, order, n_transactions, elements):
     if remaining == []:
         #crea schedule
         new_serial = []
+        name = ""
         for transaction in order:
             new_serial += to_serial[transaction]
-        name = ''.join(order)
+            name = name + str(transaction)
         serial_schedules[name] = {}
         serial_schedules[name]["schedule"] = new_serial
         serial_schedules[name]["read_from"] = {}

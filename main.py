@@ -1,14 +1,17 @@
 from parser import *
 from checker import *
 
-schedule_to_analyze = 3
+schedule_to_analyze = 0
                 
 def parse_check_and_create(schedule):
     info = schedule.pop(0)
-    parse(schedule, info[0], info[1])
-    generate_serial([str(transaction) for transaction in range (0, info[0])],[], info[0], info[1])
+    n_transactions = info[0]
+    elements = info[1]
+    parse(schedule, n_transactions, elements)
+    generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, elements)
+    conflict_lists = create_conflict_list(conflicts, n_transactions)
     
-    conflict_serializable = check_conflict_serializability(transaction_graph,info[0])
+    conflict_serializable = check_conflict_serializability(conflict_lists, info[0])
     if conflict_serializable:
         view_serializability = True
     else:
@@ -22,7 +25,7 @@ def parse_check_and_create(schedule):
                 "conflict_serializable" : conflict_serializable,
                 "view_serializable" : view_serializability,
                 "blind_write" : blind_write,
-                "graph" : transaction_graph,
+                "graph" : conflict_lists,
                 "read_from" : read_from,
                 "final_write" : final_write,
         }

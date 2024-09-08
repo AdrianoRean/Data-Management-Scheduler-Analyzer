@@ -1,17 +1,15 @@
 {
     "conflict_serializable": false,
     "view_serializable": false,
-    "blind_write": false,
-    "graph": [
-        [
-            false,
-            true
+    "blind_write": true,
+    "graph": {
+        "0": [
+            1
         ],
-        [
-            true,
-            false
+        "1": [
+            0
         ]
-    ],
+    },
     "read_from": {
         "0": {
             "A": null,
@@ -23,7 +21,7 @@
         }
     },
     "final_write": {
-        "A": "1",
-        "B": "0"
+        "A": 1,
+        "B": 0
     }
 }
