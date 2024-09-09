@@ -1,7 +1,7 @@
 {
     "conflict_serializable": true,
     "view_serializable": true,
-    "blind_write": true,
+    "blind_write": null,
     "graph": {
         "0": [
             1,
@@ -12,6 +12,7 @@
             1
         ]
     },
+    "circuits": [],
     "read_from": {
         "0": {
             "A": null,

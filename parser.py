@@ -3,10 +3,6 @@ import json
 
 from schedules import schedules
 
-#Assunzione che nessuna transazione legge o scrive due volte stesso elemento, nè legge dopo aver scritto.
-#Anche, se un grafo orientato ha un ciclo, anche il grafo inversamente orientato ha lo stesso ciclo.
-
-blind_write = True
 conflict_serializable = True
 info = (0, [])
 elements_touched_transactions = {}
@@ -27,11 +23,11 @@ read_from = {}
 '''
 Nella forma di (per due transazioni e due elementi):
 {
-    "transaction_0" : {
+    transaction_0 : {
         "element_1" : "",
         "element_2" : trasaction_2
     },
-    "transaction_1" : {
+    transaction_1 : {
         "element_1" : "",
         "element_2" : ""
     }
@@ -41,16 +37,16 @@ remaining_conflicts = {}
 '''
 Nella forma di (per due transazioni e due elementi):
 {
-    "transaction_0" : []
-    "transaction_1" : [transaction_0]
+    transaction_0 : []
+    transaction_1 : [transaction_0]
 }
 '''
 conflicts = {}
 '''
 Nella forma di (per due transazioni e due elementi):
 {
-    "transaction_0" : [transaction_1]
-    "transaction_1" : []
+    transaction_0 : [transaction_1]
+    transaction_1 : []
 }
 '''
 final_write = {}
@@ -59,6 +55,17 @@ Nella forma di  (per due transazioni e due elementi):
 {
     "element_1" : transaction_0,
     "element_2" : transaction_1
+}
+'''
+is_blind = {}
+'''
+Nella forma di  (per due transazioni e due elementi):
+{
+    transaction_0 : 
+        "element_1" : True, 
+        "element_0" : None
+    transaction_1 : 
+        "element_2" : False
 }
 '''
 
@@ -105,6 +112,7 @@ def parse(or_schedule, n_transactions, elements):
         remaining_conflicts[i] = [j for j in range (0, n_transactions)]
         remaining_conflicts[i].remove(i)
         conflicts[i] = []
+        is_blind[i] = {}
         
     for element in elements:
         elements_touched_transactions[element] = {}
@@ -127,10 +135,15 @@ def parse(or_schedule, n_transactions, elements):
                 if other_transaction in elements_touched_transactions[element]["Writes"]:
                     conflicts[transaction].append(other_transaction)
                     remaining_conflicts[transaction].remove(other_transaction)
-                
             
             if type_action == "W":
                 elements_touched_transactions[element]["Writes"].add(transaction)
+                
+                if transaction in elements_touched_transactions[element]["Reads"]:
+                    is_blind[transaction][element] = False
+                else:
+                    is_blind[transaction][element] = True
+                
                 final_write[element] = transaction
                 for other_transaction in remaining_conflicts[transaction]:
                     if other_transaction in elements_touched_transactions[element]["Reads"]:
@@ -139,6 +152,7 @@ def parse(or_schedule, n_transactions, elements):
             else:
                 elements_touched_transactions[element]["Reads"].add(transaction)
                 read_from[transaction][element] = final_write[element]
+                is_blind[transaction][element] = None
                 
         to_serial[transaction].append(action)
 

@@ -4,7 +4,9 @@
     "blind_write": null,
     "graph": {
         "0": [],
-        "1": []
+        "1": [
+            0
+        ]
     },
     "circuits": [],
     "read_from": {
@@ -18,7 +20,7 @@
         }
     },
     "final_write": {
-        "A": 0,
-        "B": 1
+        "A": null,
+        "B": 0
     }
 }

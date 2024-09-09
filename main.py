@@ -1,9 +1,14 @@
 from parser import *
 from checker import *
+from johnson import johnson
 
-schedule_to_analyze = 0
+#Assunzione che nessuna transazione legge o scrive due volte stesso elemento, nè legge dopo aver scritto.
+
+schedule_to_analyze = 4
                 
 def parse_check_and_create(schedule):
+    blind_write = None
+    circuits = []
     info = schedule.pop(0)
     n_transactions = info[0]
     elements = info[1]
@@ -15,6 +20,9 @@ def parse_check_and_create(schedule):
     if conflict_serializable:
         view_serializability = True
     else:
+    
+        circuits = johnson(conflict_lists, n_transactions)
+        blind_write = check_if_cycles_are_blind(circuits, is_blind, n_transactions)
         if blind_write:
             view_serializability = check_view_serializabilty(read_from, final_write, serial_schedules)
         else:
@@ -26,6 +34,7 @@ def parse_check_and_create(schedule):
                 "view_serializable" : view_serializability,
                 "blind_write" : blind_write,
                 "graph" : conflict_lists,
+                "circuits" : circuits,
                 "read_from" : read_from,
                 "final_write" : final_write,
         }
