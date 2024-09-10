@@ -4,12 +4,11 @@ circuits = []
 
 def get_component_adiacency_list(connected_lists, s, v, n_transaction):
     new_lists = deepcopy(connected_lists)
-    for i in range(s,v):
+    for i in range(0,s):
         new_lists.pop(i)
-    e = v - 1
     for i in range(v, n_transaction):
         try:
-            new_lists[i].pop(e)
+            new_lists[i].remove(v)
         except:
             pass
     return new_lists
@@ -24,6 +23,7 @@ def unblock(v, blocked, blocked_stack):
         blocked_stack[v].pop(w)
         
 def circuit(v, s, stack, blocked, blocked_stack, adiancency_list):
+    #print("v: " + str(v) + ", s: " + str(s) + ", stack: " + str(stack) + ", blocked: " + str(blocked) + ", b_stack: " + str(blocked_stack) + ", adiacency_list: " + str(adiancency_list))
     f = False
     stack.append(v)
     blocked[v] = True
@@ -33,7 +33,6 @@ def circuit(v, s, stack, blocked, blocked_stack, adiancency_list):
             f = True
         elif not blocked[w]:
             f = circuit(w, s, stack, blocked, blocked_stack, adiancency_list)
-        
         if f:
             unblock(v, blocked, blocked_stack)
         else:
@@ -41,7 +40,7 @@ def circuit(v, s, stack, blocked, blocked_stack, adiancency_list):
                 if v not in blocked_stack[w]:
                     blocked_stack[w].append(v)
         
-        stack.pop(v)
+        stack.remove(v)
         
         return f
     

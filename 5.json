@@ -1,14 +1,16 @@
 {
     "conflict_serializable": false,
-    "view_serializable": false,
+    "view_serializable": true,
     "blind_write": true,
     "graph": {
         "0": [
-            1
+            1,
+            2
         ],
         "1": [
             0
-        ]
+        ],
+        "2": []
     },
     "circuits": [
         [
@@ -19,15 +21,19 @@
     "read_from": {
         "0": {
             "A": null,
-            "C": null
+            "B": null
         },
         "1": {
             "A": 0,
-            "C": null
+            "B": null
+        },
+        "2": {
+            "A": null,
+            "B": null
         }
     },
     "final_write": {
         "A": 0,
-        "C": 0
+        "B": 2
     }
 }
