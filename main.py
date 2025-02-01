@@ -11,9 +11,9 @@ def parse_check_and_create(schedule):
     circuits = []
     info = schedule.pop(0)
     n_transactions = info[0]
-    elements = info[1]
-    parse(schedule, n_transactions, elements)
-    generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, elements)
+    resources = info[1]
+    parse(schedule, n_transactions, resources)
+    generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
     conflict_lists = create_conflict_list(conflicts, n_transactions)
     
     conflict_serializable = check_conflict_serializability(conflict_lists, info[0])

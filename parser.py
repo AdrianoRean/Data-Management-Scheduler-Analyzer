@@ -5,7 +5,7 @@ from schedules import schedules
 
 conflict_serializable = True
 info = (0, [])
-elements_touched_transactions = {}
+resources_touched_transactions = {}
 '''
 Nella forma di  (per due transazioni e due elementi):
 {
@@ -102,7 +102,7 @@ Nella forma di (per due transazioni e due elementi):
 }
 '''
             
-def parse(or_schedule, n_transactions, elements):
+def parse(or_schedule, n_transactions, resources):
     
     #Initialization
     schedule = deepcopy(or_schedule)
@@ -114,47 +114,45 @@ def parse(or_schedule, n_transactions, elements):
         conflicts[i] = []
         is_blind[i] = {}
         
-    for element in elements:
-        elements_touched_transactions[element] = {}
-        final_write[element] = None
+    for resource in resources:
+        resources_touched_transactions[resource] = {}
+        final_write[resource] = None
         for i in range(0, n_transactions):
-            read_from[i][element] = None
-            elements_touched_transactions[element]['Reads'] = set([])
-            elements_touched_transactions[element]['Writes'] = set([])
+            read_from[i][resource] = None
+            resources_touched_transactions[resource]['Reads'] = set([])
+            resources_touched_transactions[resource]['Writes'] = set([])
     
     #Actual Parsing
-    for action in schedule:
+    for operation in schedule:
         
-        type_action = action[0]
-        transaction = action[1]
-        element = action[2]
+        action,transaction, resource = operation
         
-        if element != "":
+        if resource != "":
             
             for other_transaction in remaining_conflicts[transaction]:
-                if other_transaction in elements_touched_transactions[element]["Writes"]:
+                if other_transaction in resources_touched_transactions[resource]["Writes"]:
                     conflicts[transaction].append(other_transaction)
                     remaining_conflicts[transaction].remove(other_transaction)
             
-            if type_action == "W":
-                elements_touched_transactions[element]["Writes"].add(transaction)
+            if action == "W":
+                resources_touched_transactions[resource]["Writes"].add(transaction)
                 
-                if transaction in elements_touched_transactions[element]["Reads"]:
-                    is_blind[transaction][element] = False
+                if transaction in resources_touched_transactions[resource]["Reads"]:
+                    is_blind[transaction][resource] = False
                 else:
-                    is_blind[transaction][element] = True
+                    is_blind[transaction][resource] = True
                 
-                final_write[element] = transaction
+                final_write[resource] = transaction
                 for other_transaction in remaining_conflicts[transaction]:
-                    if other_transaction in elements_touched_transactions[element]["Reads"]:
+                    if other_transaction in resources_touched_transactions[resource]["Reads"]:
                         conflicts[transaction].append(other_transaction)
                         remaining_conflicts[transaction].remove(other_transaction)
             else:
-                elements_touched_transactions[element]["Reads"].add(transaction)
-                read_from[transaction][element] = final_write[element]
-                is_blind[transaction][element] = None
+                resources_touched_transactions[resource]["Reads"].add(transaction)
+                read_from[transaction][resource] = final_write[resource]
+                is_blind[transaction][resource] = None
                 
-        to_serial[transaction].append(action)
+        to_serial[transaction].append(operation)
 
 def create_conflict_list(list_conflict_inverted, n_transactions):
     
@@ -171,7 +169,7 @@ def create_conflict_list(list_conflict_inverted, n_transactions):
             
     return conflict_list
 
-def parse_serial(schedule_name, n_transactions, elements):
+def parse_serial(schedule_name, n_transactions, resources):
     #Initialization
     schedule = deepcopy(serial_schedules[schedule_name]["schedule"])
     serial_read_from = serial_schedules[schedule_name]["read_from"]
@@ -179,25 +177,23 @@ def parse_serial(schedule_name, n_transactions, elements):
     
     for i in range(0, n_transactions):
         serial_read_from[i] = {}
-    for element in elements:
-        serial_final_write[element] = None
+    for resource in resources:
+        serial_final_write[resource] = None
         for i in range(0, n_transactions):
-            serial_read_from[i][element] = None
+            serial_read_from[i][resource] = None
         
     #Actual Parsing
-    for action in schedule:
+    for operation in schedule:
         
-        type_action = action[0]
-        transaction = action[1]
-        element = action[2]
-        
-        if element != "":
-            if type_action == "W":
-                serial_final_write[element] = transaction
+        action,transaction,resource = operation
+
+        if resource != "":
+            if action == "W":
+                serial_final_write[resource] = transaction
             else:
-                serial_read_from[transaction][element] = serial_final_write[element]
+                serial_read_from[transaction][resource] = serial_final_write[resource]
         
-def generate_serial(remaining, order, n_transactions, elements):
+def generate_serial(remaining, order, n_transactions, resources):
     if remaining == []:
         #crea schedule
         new_serial = []
@@ -209,11 +205,11 @@ def generate_serial(remaining, order, n_transactions, elements):
         serial_schedules[name]["schedule"] = new_serial
         serial_schedules[name]["read_from"] = {}
         serial_schedules[name]["final_write"] = {}
-        parse_serial(name, n_transactions, elements)
+        parse_serial(name, n_transactions, resources)
     else:
         for transaction in remaining:
             new_remaining = deepcopy(remaining)
             new_remaining.remove(transaction)
             new_order = deepcopy(order)
             new_order.append(transaction)
-            generate_serial(new_remaining, new_order, n_transactions, elements)
+            generate_serial(new_remaining, new_order, n_transactions, resources)
