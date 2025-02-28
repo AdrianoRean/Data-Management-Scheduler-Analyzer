@@ -1,7 +1,6 @@
 from two_pl_checker import TwoPLChecker
 import time
 from conflict_checker import ConflictChecker
-import johnson as johnson
 from view_checker import ViewChecker
 from schedules import schedules
 

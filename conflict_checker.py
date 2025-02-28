@@ -154,7 +154,7 @@ class ConflictChecker:
         for next_node in graph[actual_node]:
             if visited[next_node]:
                 return True
-            elif visited[next_node] in remaining:
+            elif next_node in remaining:
                 visited[next_node] = True
                 remaining.remove(next_node)
                 return self.check_cycle(graph, n_transaction, next_node, remaining, visited)
