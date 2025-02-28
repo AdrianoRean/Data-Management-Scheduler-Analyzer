@@ -217,6 +217,17 @@ class ViewChecker:
             for i in range(0, n_transactions):
                 serial_read_from[i][resource] = None
         
+        #Actual Parsing
+        for operation in schedule:
+            
+            action,transaction,resource = operation
+
+            if resource != "":
+                if action == "W":
+                    serial_final_write[resource] = transaction
+                else:
+                    serial_read_from[transaction][resource] = serial_final_write[resource]
+        
 
     def generate_serial(self, remaining, order, n_transactions, resources):
         if remaining == []:

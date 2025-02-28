@@ -1,7 +1,6 @@
 from two_pl_checker import TwoPLChecker
 import time
 from conflict_checker import ConflictChecker
-import johnson as johnson
 from view_checker import ViewChecker
 from schedules import schedules
 
@@ -44,6 +43,7 @@ def sequential_checker(schedule):
 
 if __name__ == "__main__":
     time_results = {}
+    #schedules = schedules[-3:-2]
     for s in schedules:
         start_time = time.perf_counter() # Avvia il timer
         result = sequential_checker(s)
