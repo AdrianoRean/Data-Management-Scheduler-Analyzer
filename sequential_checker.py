@@ -35,15 +35,18 @@ def sequential_checker(schedule):
     
     return "None"
 
-time_results = {}
-for s in schedule:
-    start_time = time.time()  # Avvia il timer
-    result = sequential_checker(s)
-    end_time = time.time()  # Ferma il timer 
-    if result in time_results:
-        time_results[result]+= (end_time-start_time)
-    else:
-        time_results = (end_time-start_time)
+if __name__ == "__main__":
+    time_results = {}
+    for s in schedules:
+        start_time = time.perf_counter() # Avvia il timer
+        result = sequential_checker(s)
+        end_time = time.perf_counter()  # Ferma il timer 
+        delta = (end_time-start_time)
+        if result in time_results:
+            time_results[result]+= (delta)
+        else:
+            time_results[result] = (delta)
+        print(f"Schedule: {s}\nResult: {result}\nElapsed time: {delta}\n*****************")
 
 
 

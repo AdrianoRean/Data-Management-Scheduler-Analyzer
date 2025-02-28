@@ -88,10 +88,11 @@ def two_pl_checker(schedule):
 
     return True
 
-schedule = schedules[1]
-info = schedule.pop(0)
-#print(f'Lo schedule: {schedule} è 2pl? \n {two_pl_checker(schedule)}')
-       
-for s in schedules:
-    info = s.pop(0)
-    print(f'Lo schedule: {s} è 2pl? \n {two_pl_checker(s)}')
+if __name__ == "main":
+    schedule = schedules[1]
+    info = schedule.pop(0)
+    #print(f'Lo schedule: {schedule} è 2pl? \n {two_pl_checker(schedule)}')
+        
+    for s in schedules:
+        info = s.pop(0)
+        print(f'Lo schedule: {s} è 2pl? \n {two_pl_checker(s)}')
