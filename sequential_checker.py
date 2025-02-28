@@ -1,9 +1,8 @@
-from two_pl_checker import TwoPLChecker
+from two_pl_checker import *
 import time
-from conflict_checker import ConflictChecker
+import conflict_checker as cc
 import johnson as johnson
-from view_checker import ViewChecker
-from schedules import schedules
+import view_checker as vc
 
 #Assunzione che nessuna transazione legge o scrive due volte stesso elemento, nè legge dopo aver scritto.
 
@@ -19,23 +18,21 @@ def sequential_checker(schedule):
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker()
-    if pl.two_pl_checker(schedule):
+    if two_pl_checker(schedule):
         return "two_pl"
     # Conflict-equivalent checker
-    cc = ConflictChecker()
-    cc.parse(schedule, n_transactions, resources)
-    cc.create_conflict_list(n_transactions)
-    conflict_serializable = cc.check_conflict_serializability(info[0])
+    conflicts = cc.parse(schedule, n_transactions, resources)
+    conflict_lists = cc.create_conflict_list(conflicts, n_transactions)
+    conflict_serializable = cc.check_conflict_serializability(conflict_lists, info[0])
     if conflict_serializable:
         return "conflict"
-    vc = ViewChecker(n_transactions)
-    vc.parse(schedule,n_transactions,resources)
+    is_blind = vc.parse(schedule,n_transactions,resources)
     vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
-    vc.johnson.johnson(cc.conflict_list)
-    blind_write = vc.check_if_cycles_are_blind()
+    
+    circuits = johnson.johnson(conflict_lists, n_transactions)
+    blind_write = vc.check_if_cycles_are_blind(circuits, is_blind, n_transactions)
     if blind_write:
-        view_serializability = vc.check_view_serializabilty()
+        view_serializability = vc.check_view_serializabilty(schedule)
     # View-serializability checker
     if view_serializability:
         return "view"
