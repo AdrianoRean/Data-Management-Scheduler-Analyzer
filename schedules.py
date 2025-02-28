@@ -1,6 +1,6 @@
 import random 
-
-schedules = []
+to_check = [
+]
 two_pl_schedules = [
     [
         [2,["A","B"]],
@@ -93,6 +93,19 @@ none_schedule = [
     ["W", 0, "B"],
     ["W", 2, "C"]
     ],
+    [
+    [4, ["A", "B", "C", "D"]],
+    ["W", 0, "A"],
+    ["W", 1, "B"],
+    ["W", 2, "C"],
+    ["W", 3, "D"],
+    ["W", 0, "B"],
+    ["W", 1, "A"],
+    ["W", 2, "D"],
+    ["W", 3, "B"],
+    ["W", 0, "D"],
+    ["W", 1, "C"]
+]
 ]
 conflict_schedules = [
     [
@@ -121,20 +134,6 @@ conflict_schedules = [
     ["W", 2, "B"],
     ["W", 0, "B"],
     ],
-    [
-    [4, ["A", "B", "C", "D"]],
-    ["W", 0, "A"],
-    ["W", 1, "B"],
-    ["W", 2, "C"],
-    ["W", 3, "D"],
-    ["W", 0, "B"],
-    ["W", 1, "A"],
-    ["W", 2, "D"],
-    ["W", 3, "B"],
-    ["W", 0, "D"],
-    ["W", 1, "C"]
-]
-
 ]
 schedules = two_pl_schedules + conflict_schedules + view_schedules + none_schedule
 #random.shuffle(schedules)
