@@ -108,15 +108,17 @@ class ViewChecker:
             self.is_blind = False
             self.n_transactions = n_transactions
 
-        def get_component_adiacency_list(self, connected_lists, s, v, n_transaction):
+        def get_component_adiacency_list(self, connected_lists, s, n_transaction):
             new_lists = deepcopy(connected_lists)
+            print(f"New list for s {s}: {new_lists}")
             for i in range(0,s):
                 new_lists.pop(i)
-            for i in range(v, n_transaction):
-                try:
-                    new_lists[i].remove(v)
-                except:
-                    pass
+                for j in range(s, n_transaction):
+                    try:
+                        new_lists[j].remove(i)
+                    except:
+                        pass
+            print(f"After: {new_lists}")
             return new_lists
 
         def unblock(self, v, blocked, blocked_stack):
@@ -151,18 +153,16 @@ class ViewChecker:
                 return f
 
         def johnson(self, connected_lists):
-            l = -1
             
             for s in range (0, self.n_transactions - 1):
-                adiancency_list = self.get_component_adiacency_list(connected_lists, s, l, self.n_transactions)
+                adiancency_list = self.get_component_adiacency_list(connected_lists, s, self.n_transactions)
                 stack = []
                 blocked = [False for i in range(0, self.n_transactions)]
                 blocked_stack = {}
                 for i in range (s, self.n_transactions):
                     blocked_stack[i] = []
                 
-                self.circuit(s, s, stack, blocked, blocked_stack, adiancency_list)
-                l += 1            
+                self.circuit(s, s, stack, blocked, blocked_stack, adiancency_list)        
 
     def parse(self, or_schedule, n_transactions, resources):
         

@@ -12,7 +12,6 @@ def sequential_checker(schedule):
     # the sequential checker doesn't do any preprocessing in parallel 
     # it checks the property one by one
     blind_write = None
-    circuits = []
     info = schedule.pop(0)
     n_transactions = info[0]
     resources = info[1]
@@ -44,7 +43,7 @@ def sequential_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in conflict_schedules:
+    for s in schedules:
         start_time = time.perf_counter() # Avvia il timer
         result = sequential_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
