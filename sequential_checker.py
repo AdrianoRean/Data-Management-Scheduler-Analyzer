@@ -2,7 +2,7 @@ from two_pl_checker import TwoPLChecker
 import time
 from conflict_checker import ConflictChecker
 from view_checker import ViewChecker
-from schedules import schedules
+from schedules import *
 
 #Assunzione che nessuna transazione legge o scrive due volte stesso elemento, nè legge dopo aver scritto.
 
@@ -44,7 +44,7 @@ def sequential_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in schedules:
+    for s in conflict_schedules:
         start_time = time.perf_counter() # Avvia il timer
         result = sequential_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
