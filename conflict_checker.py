@@ -114,6 +114,8 @@ def parse(or_schedule, n_transactions, resources):
                 resources_touched_transactions[resource]["Reads"].add(transaction)
                 read_from[transaction][resource] = final_write[resource]
                 is_blind[transaction][resource] = None
+    
+    return conflicts
                 
 
 def create_conflict_list(list_conflict_inverted, n_transactions):
@@ -131,3 +133,30 @@ def create_conflict_list(list_conflict_inverted, n_transactions):
             
     return conflict_list
 
+def check_conflict_serializability(graph, n_transaction):
+    remaining = [i for i in range(0, n_transaction)]
+    
+    actual_node = remaining.pop()
+    visited = [False for i in range(0, n_transaction)]
+    visited[actual_node] = True
+    
+    while True:
+        if check_cycle(graph, n_transaction, actual_node, remaining, visited):
+            return False
+        else:
+            if remaining != []:
+                actual_node = remaining.pop()
+                visited = [False for i in range(0, n_transaction)]
+                visited[actual_node] = True
+            else:
+                return True
+            
+def check_cycle(graph, n_transaction, actual_node, remaining, visited):
+    for next_node in graph[actual_node]:
+        if visited[next_node]:
+            return True
+        elif visited[next_node] in remaining:
+            visited[next_node] = True
+            remaining.remove(next_node)
+            return check_cycle(graph, n_transaction, next_node, remaining, visited)
+    return False
