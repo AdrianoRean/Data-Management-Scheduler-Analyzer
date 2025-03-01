@@ -1,12 +1,6 @@
 from copy import deepcopy
-
-class ConflictChecker:
-    
-    def __init__(self):
-        self.conflict_serializable = True
-        self.info = (0, [])
-        self.resources_touched_transactions = {}
-        '''
+#self.resources_touched_transactions = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             "element_1" : {
@@ -18,9 +12,9 @@ class ConflictChecker:
                 "Writes" [transaction_1]
             }
         }
-        '''
-        self.read_from = {}
-        '''
+'''
+        #self.read_from = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             transaction_0 : {
@@ -32,33 +26,33 @@ class ConflictChecker:
                 "element_2" : ""
             }
         }
-        '''
-        self.remaining_conflicts = {}
-        '''
+'''
+        #self.remaining_conflicts = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             transaction_0 : []
             transaction_1 : [transaction_0]
         }
-        '''
-        self.conflicts = {}
-        '''
+'''
+        #self.conflicts = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             transaction_0 : [transaction_1]
             transaction_1 : []
         }
-        '''
-        self.final_write = {}
-        '''
+'''
+        #self.final_write = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             "element_1" : transaction_0,
             "element_2" : transaction_1
         }
-        '''
-        self.is_blind = {}
-        '''
+'''
+        #self.is_blind = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             transaction_0 : 
@@ -67,25 +61,48 @@ class ConflictChecker:
             transaction_1 : 
                 "element_2" : False
         }
-        '''
+'''
+        #self.conflict_list = {}
+class ConflictChecker:
+    
+    def __init__(self,schedule,resources,n_transactions,remaining_conflicts = {}, conflicts={},final_write={},is_blind={},init=False):
+        self.conflict_serializable = True
+        self.info = (0, [])
+        self.resources = resources
+        self.n_transactions = n_transactions
+        self.schedule = schedule
+        
+        self.remaining_conflicts = remaining_conflicts
+        self.conflicts = conflicts
+        self.final_write = final_write
+        self.is_blind = is_blind
+        self.resources_touched_transactions = {}
         self.conflict_list = {}
-                    
-    def parse(self, or_schedule, n_transactions, resources):
+
+        if init:
+            for resource in resources:
+                self.resources_touched_transactions[resource] = {}
+                self.final_write[resource] = None
+                for _ in range(0, self.n_transactions):
+                    self.resources_touched_transactions[resource]['Reads'] = set([])
+                    self.resources_touched_transactions[resource]['Writes'] = set([])
+        else:
+            self.parse(schedule)
+             
+    def parse(self, or_schedule):
         
         #Initialization
         schedule = deepcopy(or_schedule)
-        for i in range(0, n_transactions):
-            self.read_from[i] = {}
-            self.remaining_conflicts[i] = [j for j in range (0, n_transactions)]
+        for i in range(0, self.n_transactions):
+            self.remaining_conflicts[i] = [j for j in range (0, self.n_transactions)]
             self.remaining_conflicts[i].remove(i)
             self.conflicts[i] = []
             self.is_blind[i] = {}
             
-        for resource in resources:
+        for resource in self.resources:
             self.resources_touched_transactions[resource] = {}
             self.final_write[resource] = None
-            for i in range(0, n_transactions):
-                self.read_from[i][resource] = None
+            for i in range(0, self.n_transactions):
                 self.resources_touched_transactions[resource]['Reads'] = set([])
                 self.resources_touched_transactions[resource]['Writes'] = set([])
         
@@ -116,16 +133,15 @@ class ConflictChecker:
                             self.remaining_conflicts[transaction].remove(other_transaction)
                 else:
                     self.resources_touched_transactions[resource]["Reads"].add(transaction)
-                    self.read_from[transaction][resource] = self.final_write[resource]
                     self.is_blind[transaction][resource] = None
                     
 
-    def create_conflict_list(self, n_transactions):
+    def create_conflict_list(self):
         
-        for i in range(0, n_transactions):
+        for i in range(0, self.n_transactions):
             self.conflict_list[i] = []
             
-        for i in range(0, n_transactions):
+        for i in range(0, self.n_transactions):
             c_list = self.conflicts[i]
             
             for other_transaction in c_list:

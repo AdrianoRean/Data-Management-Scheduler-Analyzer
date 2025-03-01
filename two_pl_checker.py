@@ -2,19 +2,19 @@ from schedules import schedules
 
 class TwoPLChecker:
     
-    def __init__(self):
-        self.resources_needed = {} #lista di risorse richieste
-        self.transactions_involved = {} # lista di transazioni che richiedono la risorsa
-        self.has_something_to_lock_in_the_loop = {} 
-        self.resources_needed = {}
-        self.transactions_involved = {}
+    def __init__(self,resources_needed={},transactions_involved={},init=False):
+   
+        self.resources_needed = resources_needed
+        self.transactions_involved = transactions_involved
+        self.init = init
+
 
     def clean_transaction_involved(self, transaction):
 
         for key in self.transactions_involved.keys():
             self.transactions_involved[key] = [(other_tr, other_act) for (other_tr, other_act) in self.transactions_involved[key] if other_tr != transaction]
 
-    def test(self,loop):
+    def need_same_resource(self,loop):
         resources = []
         for _,r in loop:
             if r in resources:
@@ -28,7 +28,7 @@ class TwoPLChecker:
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
-        elif self.test(loop):
+        elif self.need_same_resource(loop):
             return False
         else:
             return True
@@ -52,11 +52,8 @@ class TwoPLChecker:
                 if not result:
                     return False
             return True
+    def init_list(self,schedule):
 
-    def two_pl_checker(self, schedule):
-        ''' L'idea del checker è di lockare tutto il prima possibile '''
-
-        # Step 1: Inizializzare le mappe
         for operation in (schedule):
             action,tr,resource = operation
                     
@@ -71,7 +68,15 @@ class TwoPLChecker:
                 self.transactions_involved[resource]=[(tr,action)]
             else:
                 self.transactions_involved[resource].append((tr,action))
-            
+
+
+    def two_pl_checker(self, schedule):
+        ''' L'idea del checker è di lockare tutto il prima possibile '''
+
+        # Step 1: Inizializzare le liste
+        if not self.init:
+            self.init_list(schedule)
+
         # Step 2: Check and lock
         # invece di usare who_is_locking basarsi solo sul transaction_involved
         #print(f'\n OUT \nresources_needed: {resources_needed}, transaction_involved: {transactions_involved}')

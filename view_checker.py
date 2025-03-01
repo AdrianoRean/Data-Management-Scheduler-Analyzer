@@ -1,12 +1,6 @@
 from copy import deepcopy
-
-class ViewChecker:
-    
-    def __init__(self, n_transactions):
-        self.n_transactions = n_transactions
-        self.johnson = self.Johnson(n_transactions)
-        self.serial_schedules = {}
-        '''
+#self.serial_schedules = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             "01" : [
@@ -23,8 +17,8 @@ class ViewChecker:
             ]
         }
         '''
-        self.is_blind = {}
-        '''
+        #self.is_blind = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             transaction_0 : 
@@ -34,8 +28,8 @@ class ViewChecker:
                 "element_2" : False
         }
         '''
-        self.to_serial = {}
-        '''
+        #self.to_serial = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             "transaction_0" : [
@@ -46,8 +40,8 @@ class ViewChecker:
             ]
         }
         '''
-        self.resources_touched_transactions = {}
-        '''
+        #self.resources_touched_transactions = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             "element_1" : {
@@ -60,8 +54,8 @@ class ViewChecker:
             }
         }
         '''
-        self.read_from = {}
-        '''
+        #self.read_from = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             transaction_0 : {
@@ -74,16 +68,16 @@ class ViewChecker:
             }
         }
         '''
-        self.final_write = {}
-        '''
+        #self.final_write = {}
+'''
         Nella forma di  (per due transazioni e due elementi):
         {
             "element_1" : transaction_0,
             "element_2" : transaction_1
         }
         '''
-        self.serial_schedules = {}
-        '''
+        #self.serial_schedules = {}
+'''
         Nella forma di (per due transazioni e due elementi):
         {
             "01" : [
@@ -100,7 +94,38 @@ class ViewChecker:
             ]
         }
         '''
+       
+class ViewChecker:
+    def __init__(
+            self,
+            schedule,
+            n_transactions,
+            resources,
+            serial_schedules = {},
+            is_blind = {},
+            to_serial = {},
+            resources_touched_transactions = {},
+            read_from = {},
+            final_write = {},
+            init = False
+        ):
         
+        self.n_transactions = n_transactions
+        self.johnson = self.Johnson(n_transactions)
+        self.schedule = schedule
+        self.resources = resources
+
+        self.serial_schedules = serial_schedules
+        self.is_blind = is_blind
+        self.to_serial = to_serial
+        self.resources_touched_transactions = resources_touched_transactions
+        self.read_from = read_from
+        self.final_write = final_write
+        self.init = init
+
+        if not init:
+            self.parse()
+ 
     class Johnson:
     
         def __init__(self, n_transactions):
@@ -164,19 +189,19 @@ class ViewChecker:
                 
                 self.circuit(s, s, stack, blocked, blocked_stack, adiancency_list)        
 
-    def parse(self, or_schedule, n_transactions, resources):
+    def parse(self):
         
         #Initialization
-        schedule = deepcopy(or_schedule)
-        for i in range(0, n_transactions):
+        schedule = deepcopy(self.schedule)
+        for i in range(0, self.n_transactions):
             self.read_from[i] = {}
             self.to_serial[i] = []
             self.is_blind[i] = {}
             
-        for resource in resources:
+        for resource in self.resources:
             self.resources_touched_transactions[resource] = {}
             self.final_write[resource] = None
-            for i in range(0, n_transactions):
+            for i in range(0, self.n_transactions):
                 self.read_from[i][resource] = None
                 self.resources_touched_transactions[resource]['Reads'] = set([])
                 self.resources_touched_transactions[resource]['Writes'] = set([])
@@ -241,7 +266,7 @@ class ViewChecker:
             self.serial_schedules[name]["schedule"] = new_serial
             self.serial_schedules[name]["read_from"] = {}
             self.serial_schedules[name]["final_write"] = {}
-            self.parse_serial(name, n_transactions, resources)
+            self.parse_serial(name, self.n_transactions, self.resources)
         else:
             for transaction in remaining:
                 new_remaining = deepcopy(remaining)
