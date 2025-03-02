@@ -65,7 +65,7 @@ from copy import deepcopy
         #self.conflict_list = {}
 class ConflictChecker:
     
-    def __init__(self,schedule,resources,n_transactions,remaining_conflicts = {}, conflicts={},final_write={},is_blind={},init=False):
+    def __init__(self,schedule,resources,n_transactions,remaining_conflicts = {}, conflicts={}, init=False):
         self.conflict_serializable = True
         self.info = (0, [])
         self.resources = resources
@@ -74,15 +74,12 @@ class ConflictChecker:
         
         self.remaining_conflicts = remaining_conflicts
         self.conflicts = conflicts
-        self.final_write = final_write
-        self.is_blind = is_blind
         self.resources_touched_transactions = {}
         self.conflict_list = {}
 
         if init:
             for resource in resources:
                 self.resources_touched_transactions[resource] = {}
-                self.final_write[resource] = None
                 for _ in range(0, self.n_transactions):
                     self.resources_touched_transactions[resource]['Reads'] = set([])
                     self.resources_touched_transactions[resource]['Writes'] = set([])
@@ -97,11 +94,9 @@ class ConflictChecker:
             self.remaining_conflicts[i] = [j for j in range (0, self.n_transactions)]
             self.remaining_conflicts[i].remove(i)
             self.conflicts[i] = []
-            self.is_blind[i] = {}
             
         for resource in self.resources:
             self.resources_touched_transactions[resource] = {}
-            self.final_write[resource] = None
             for i in range(0, self.n_transactions):
                 self.resources_touched_transactions[resource]['Reads'] = set([])
                 self.resources_touched_transactions[resource]['Writes'] = set([])
@@ -121,19 +116,12 @@ class ConflictChecker:
                 if action == "W":
                     self.resources_touched_transactions[resource]["Writes"].add(transaction)
                     
-                    if transaction in self.resources_touched_transactions[resource]["Reads"]:
-                        self.is_blind[transaction][resource] = False
-                    else:
-                        self.is_blind[transaction][resource] = True
-                    
-                    self.final_write[resource] = transaction
                     for other_transaction in self.remaining_conflicts[transaction]:
                         if other_transaction in self.resources_touched_transactions[resource]["Reads"]:
                             self.conflicts[transaction].append(other_transaction)
                             self.remaining_conflicts[transaction].remove(other_transaction)
                 else:
                     self.resources_touched_transactions[resource]["Reads"].add(transaction)
-                    self.is_blind[transaction][resource] = None
                     
 
     def create_conflict_list(self):
