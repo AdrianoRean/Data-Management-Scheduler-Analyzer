@@ -12,32 +12,28 @@ schedule_to_analyze = 5
 def parallel_checker(schedule):
     # the sequential checker doesn't do any preprocessing in parallel 
     # it checks the property one by one
-    blind_write = None
     info = schedule.pop(0)
     n_transactions = info[0]
     resources = info[1]
-    init = True
 
-    resources_needed,transactions_involved,read_from,remaining_conflicts, conflicts,final_write,is_blind = parse(schedule)
+    parser = Parser(schedule, n_transactions, resources)
+    parser.parse()
     # P2L checker
-    pl = TwoPLChecker(resources_needed,transactions_involved,init)
-    if pl.two_pl_checker(schedule):
+    pl = TwoPLChecker(schedule, parser.resources_needed, parser.transactions_involved)
+    if pl.two_pl_checker():
         return "two_pl"
     # Conflict-equivalent checker
-    cc = ConflictChecker(resources,n_transactions,read_from,remaining_conflicts, conflicts,final_write,is_blind,init)
-    conflict_serializable = cc.check_conflict_serializability(info[0])
+    cc = ConflictChecker(schedule, resources, n_transactions, parser.read_from, parser.remaining_conflicts, parser.conflicts)
+    cc.create_conflict_list()
+    conflict_serializable = cc.check_conflict_serializability()
     if conflict_serializable:
         return "conflict"
-    vc = ViewChecker(schedule, n_transactions, resources)
-
-    vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
-    vc.johnson.johnson(cc.conflict_list)
-    blind_write = vc.check_if_cycles_are_blind()
-    if blind_write:
+    if parser.is_blind:
+        vc = ViewChecker(schedule, n_transactions, resources, is_blind=parser.is_blind, to_serial=parser.to_serial, read_from=parser.read_from, final_write=parser.final_write)
+        vc.generate_serial([transaction for transaction in range (0, n_transactions)])
         view_serializability = vc.check_view_serializabilty()
-    # View-serializability checker
-    if view_serializability:
-        return "view"
+        if view_serializability:
+            return "view"
 
     return "None"
 

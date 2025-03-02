@@ -63,9 +63,10 @@ from copy import deepcopy
         }
 '''
         #self.conflict_list = {}
+        
 class ConflictChecker:
     
-    def __init__(self,schedule,resources,n_transactions,remaining_conflicts = {}, conflicts={}, init=False):
+    def __init__(self,  schedule, resources, n_transactions, remaining_conflicts = {}, conflicts={}, conflict_list = {}, resources_touched_transactions = {}):
         self.conflict_serializable = True
         self.info = (0, [])
         self.resources = resources
@@ -74,22 +75,13 @@ class ConflictChecker:
         
         self.remaining_conflicts = remaining_conflicts
         self.conflicts = conflicts
-        self.resources_touched_transactions = {}
-        self.conflict_list = {}
-
-        if init:
-            for resource in resources:
-                self.resources_touched_transactions[resource] = {}
-                for _ in range(0, self.n_transactions):
-                    self.resources_touched_transactions[resource]['Reads'] = set([])
-                    self.resources_touched_transactions[resource]['Writes'] = set([])
-        else:
-            self.parse(schedule)
+        self.conflict_list = conflict_list
+        self.resources_touched_transactions = resources_touched_transactions
              
-    def parse(self, or_schedule):
+    def parse(self):
         
         #Initialization
-        schedule = deepcopy(or_schedule)
+        schedule = deepcopy(self.schedule)
         for i in range(0, self.n_transactions):
             self.remaining_conflicts[i] = [j for j in range (0, self.n_transactions)]
             self.remaining_conflicts[i].remove(i)
@@ -122,7 +114,6 @@ class ConflictChecker:
                             self.remaining_conflicts[transaction].remove(other_transaction)
                 else:
                     self.resources_touched_transactions[resource]["Reads"].add(transaction)
-                    
 
     def create_conflict_list(self):
         
@@ -135,21 +126,20 @@ class ConflictChecker:
             for other_transaction in c_list:
                 self.conflict_list[other_transaction].append(i)
                 
-
-    def check_conflict_serializability(self, n_transaction):
-        remaining = [i for i in range(0, n_transaction)]
+    def check_conflict_serializability(self):
+        remaining = [i for i in range(0, self.n_transactions)]
         
         actual_node = remaining.pop()
-        visited = [False for i in range(0, n_transaction)]
+        visited = [False for i in range(0, self.n_transactions)]
         visited[actual_node] = True
         
         while True:
-            if self.check_cycle(self.conflict_list, n_transaction, actual_node, remaining, visited):
+            if self.check_cycle(self.conflict_list, self.n_transactions, actual_node, remaining, visited):
                 return False
             else:
                 if remaining != []:
                     actual_node = remaining.pop()
-                    visited = [False for i in range(0, n_transaction)]
+                    visited = [False for i in range(0, self.n_transactions)]
                     visited[actual_node] = True
                 else:
                     return True

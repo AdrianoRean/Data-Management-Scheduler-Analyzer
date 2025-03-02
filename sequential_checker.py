@@ -17,13 +17,15 @@ def sequential_checker(schedule):
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker()
-    if pl.two_pl_checker(schedule):
+    pl = TwoPLChecker(schedule)
+    pl.parse()
+    if pl.two_pl_checker():
         return "two_pl"
     # Conflict-equivalent checker
     cc = ConflictChecker(schedule,resources,n_transactions)
+    cc.parse()
     cc.create_conflict_list()
-    conflict_serializable = cc.check_conflict_serializability(info[0])
+    conflict_serializable = cc.check_conflict_serializability()
     if conflict_serializable:
         return "conflict"
     vc = ViewChecker(schedule, n_transactions, resources)

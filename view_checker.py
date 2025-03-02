@@ -13,7 +13,6 @@ class ViewChecker:
         self.schedule = schedule
         self.n_transactions = n_transactions
         self.resources = resources
-        
         self.is_blind = is_blind
         self.serial_schedules = {}
         '''

@@ -2,11 +2,11 @@ from schedules import schedules
 
 class TwoPLChecker:
     
-    def __init__(self,resources_needed={},transactions_involved={},init=False):
+    def __init__(self, schedule, resources_needed={}, transactions_involved={}):
    
+        self.schedule = schedule
         self.resources_needed = resources_needed
         self.transactions_involved = transactions_involved
-        self.init = init
 
 
     def clean_transaction_involved(self, transaction):
@@ -52,9 +52,10 @@ class TwoPLChecker:
                 if not result:
                     return False
             return True
-    def init_list(self,schedule):
+        
+    def parse(self):
 
-        for operation in (schedule):
+        for operation in (self.schedule):
             action,tr,resource = operation
                     
             # RESOURCES_NEEDED
@@ -70,18 +71,14 @@ class TwoPLChecker:
                 self.transactions_involved[resource].append((tr,action))
 
 
-    def two_pl_checker(self, schedule):
+    def two_pl_checker(self):
         ''' L'idea del checker è di lockare tutto il prima possibile '''
-
-        # Step 1: Inizializzare le liste
-        if not self.init:
-            self.init_list(schedule)
 
         # Step 2: Check and lock
         # invece di usare who_is_locking basarsi solo sul transaction_involved
         #print(f'\n OUT \nresources_needed: {resources_needed}, transaction_involved: {transactions_involved}')
         
-        for operation in (schedule):
+        for operation in (self.schedule):
             action,tr,resource = operation
 
             # se posso eseguire l'azione -> nessuno ha il lock oppure la transazione che lo 
