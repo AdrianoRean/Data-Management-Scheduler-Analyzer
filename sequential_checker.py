@@ -32,9 +32,8 @@ def sequential_checker(schedule):
     blind_write = vc.check_if_cycles_are_blind()
     if blind_write:
         view_serializability = vc.check_view_serializabilty()
-    # View-serializability checker
-    if view_serializability:
-        return "view"
+        if view_serializability:
+            return "view"
 
     return "None"
 

@@ -1,6 +1,12 @@
 from copy import deepcopy
-#self.serial_schedules = {}
-'''
+
+class ViewChecker:
+    
+    def __init__(self, n_transactions):
+        self.n_transactions = n_transactions
+        self.is_blind = False
+        self.serial_schedules = {}
+        '''
         Nella forma di (per due transazioni e due elementi):
         {
             "01" : [
@@ -17,19 +23,8 @@ from copy import deepcopy
             ]
         }
         '''
-        #self.is_blind = {}
-'''
-        Nella forma di  (per due transazioni e due elementi):
-        {
-            transaction_0 : 
-                "element_1" : True, 
-                "element_0" : None
-            transaction_1 : 
-                "element_2" : False
-        }
+        self.to_serial = {}
         '''
-        #self.to_serial = {}
-'''
         Nella forma di (per due transazioni e due elementi):
         {
             "transaction_0" : [
@@ -93,101 +88,7 @@ from copy import deepcopy
                 ["W", "transaction_0", "element_1"]
             ]
         }
-        '''
-       
-class ViewChecker:
-    def __init__(
-            self,
-            schedule,
-            n_transactions,
-            resources,
-            serial_schedules = {},
-            is_blind = {},
-            to_serial = {},
-            resources_touched_transactions = {},
-            read_from = {},
-            final_write = {},
-            init = False
-        ):
-        
-        self.n_transactions = n_transactions
-        self.johnson = self.Johnson(n_transactions)
-        self.schedule = schedule
-        self.resources = resources
-
-        self.serial_schedules = serial_schedules
-        self.is_blind = is_blind
-        self.to_serial = to_serial
-        self.resources_touched_transactions = resources_touched_transactions
-        self.read_from = read_from
-        self.final_write = final_write
-        self.init = init
-
-        if not init:
-            self.parse()
- 
-    class Johnson:
-    
-        def __init__(self, n_transactions):
-            self.circuits = []
-            self.is_blind = False
-            self.n_transactions = n_transactions
-
-        def get_component_adiacency_list(self, connected_lists, s, n_transaction):
-            new_lists = deepcopy(connected_lists)
-            print(f"New list for s {s}: {new_lists}")
-            for i in range(0,s):
-                new_lists.pop(i)
-                for j in range(s, n_transaction):
-                    try:
-                        new_lists[j].remove(i)
-                    except:
-                        pass
-            print(f"After: {new_lists}")
-            return new_lists
-
-        def unblock(self, v, blocked, blocked_stack):
-            blocked[v] = False
-            to_del = []
-            for w in blocked_stack[v]:
-                to_del.append(w)
-                self.unblock(w, blocked, blocked_stack)
-            for w in to_del:
-                blocked_stack[v].pop(w)
-                
-        def circuit(self, v, s, stack, blocked, blocked_stack, adiancency_list):
-            #print("v: " + str(v) + ", s: " + str(s) + ", stack: " + str(stack) + ", blocked: " + str(blocked) + ", b_stack: " + str(blocked_stack) + ", adiacency_list: " + str(adiancency_list))
-            f = False
-            stack.append(v)
-            blocked[v] = True
-            for w in adiancency_list[v]:
-                if w == s:
-                    self.circuits.append(deepcopy(stack))
-                    f = True
-                elif not blocked[w]:
-                    f = self.circuit(w, s, stack, blocked, blocked_stack, adiancency_list)
-                if f:
-                    self.unblock(v, blocked, blocked_stack)
-                else:
-                    for w in adiancency_list[v]:
-                        if v not in blocked_stack[w]:
-                            blocked_stack[w].append(v)
-                
-                stack.remove(v)
-                
-                return f
-
-        def johnson(self, connected_lists):
-            
-            for s in range (0, self.n_transactions - 1):
-                adiancency_list = self.get_component_adiacency_list(connected_lists, s, self.n_transactions)
-                stack = []
-                blocked = [False for i in range(0, self.n_transactions)]
-                blocked_stack = {}
-                for i in range (s, self.n_transactions):
-                    blocked_stack[i] = []
-                
-                self.circuit(s, s, stack, blocked, blocked_stack, adiancency_list)        
+        '''  
 
     def parse(self):
         
@@ -196,7 +97,6 @@ class ViewChecker:
         for i in range(0, self.n_transactions):
             self.read_from[i] = {}
             self.to_serial[i] = []
-            self.is_blind[i] = {}
             
         for resource in self.resources:
             self.resources_touched_transactions[resource] = {}
@@ -216,16 +116,13 @@ class ViewChecker:
                 if action == "W":
                     self.resources_touched_transactions[resource]["Writes"].add(transaction)
                     
-                    if transaction in self.resources_touched_transactions[resource]["Reads"]:
-                        self.is_blind[transaction][resource] = False
-                    else:
-                        self.is_blind[transaction][resource] = True
+                    if transaction not in self.resources_touched_transactions[resource]["Reads"]:
+                        self.is_blind = True
                     
                     self.final_write[resource] = transaction
                 else:
                     self.resources_touched_transactions[resource]["Reads"].add(transaction)
                     self.read_from[transaction][resource] = self.final_write[resource]
-                    self.is_blind[transaction][resource] = None
                     
             self.to_serial[transaction].append(operation)
 
@@ -281,18 +178,3 @@ class ViewChecker:
                 return True
         else:
             return False
-
-    def check_if_cycles_are_blind(self):
-        for t in range(0, self.n_transactions):
-            pass
-            
-        for circuit in self.johnson.circuits:
-            elements_in_common = set([])
-            for t in circuit:
-                elements_in_common = set.intersection(elements_in_common, set(self.is_blind[t].keys()))
-            for e in elements_in_common:
-                for t in circuit:
-                    if self.is_blind[t][e] == False: #Controlla se può andare bene conflitto only read e blind write
-                        return False
-        
-        return True
