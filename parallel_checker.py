@@ -28,7 +28,7 @@ def parallel_checker(schedule):
     conflict_serializable = cc.check_conflict_serializability(info[0])
     if conflict_serializable:
         return "conflict"
-    vc = ViewChecker(n_transactions)
+    vc = ViewChecker(schedule, n_transactions, resources)
 
     vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
     vc.johnson.johnson(cc.conflict_list)

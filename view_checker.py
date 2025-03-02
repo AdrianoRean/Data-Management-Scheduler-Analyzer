@@ -5,12 +5,16 @@ class ViewChecker:
     def __init__(self, 
             schedule,
             n_transactions,
-            resources):
+            resources,
+            is_blind = False,
+            to_serial = {},
+            read_from = {},
+            final_write = {}):
         self.schedule = schedule
         self.n_transactions = n_transactions
         self.resources = resources
         
-        self.is_blind = False
+        self.is_blind = is_blind
         self.serial_schedules = {}
         '''
         Nella forma di (per due transazioni e due elementi):
@@ -29,7 +33,7 @@ class ViewChecker:
             ]
         }
         '''
-        self.to_serial = {}
+        self.to_serial = to_serial
         '''
         Nella forma di (per due transazioni e due elementi):
         {
@@ -55,7 +59,7 @@ class ViewChecker:
             }
         }
         '''
-        self.read_from = {}
+        self.read_from = read_from
         '''
             Nella forma di (per due transazioni e due elementi):
             {
@@ -69,7 +73,7 @@ class ViewChecker:
                 }
             }
             '''
-        self.final_write = {}
+        self.final_write = final_write
         '''
             Nella forma di  (per due transazioni e due elementi):
             {
@@ -77,24 +81,6 @@ class ViewChecker:
                 "element_2" : transaction_1
             }
             '''
-        #self.serial_schedules = {}
-        '''
-        Nella forma di (per due transazioni e due elementi):
-        {
-            "01" : [
-                ["R", "transaction_0", "element_2"], 
-                ["W", "transaction_0", "element_1"], 
-                ["R", "transaction_1", "element_2"], 
-                ["W", "transaction_1", "element_2"]
-            ],
-            "10" : [
-                ["R", "transaction_1", "element_2"], 
-                ["W", "transaction_1", "element_2"], 
-                ["R", "transaction_0", "element_2"],
-                ["W", "transaction_0", "element_1"]
-            ]
-        }
-        '''  
 
     def parse(self):
         
@@ -157,7 +143,7 @@ class ViewChecker:
                     serial_read_from[transaction][resource] = serial_final_write[resource]
         
 
-    def generate_serial(self, remaining, order, n_transactions, resources):
+    def generate_serial(self, remaining, order = []):
         if remaining == []:
             #crea schedule
             new_serial = []
@@ -176,7 +162,7 @@ class ViewChecker:
                 new_remaining.remove(transaction)
                 new_order = deepcopy(order)
                 new_order.append(transaction)
-                self.generate_serial(new_remaining, new_order, n_transactions, resources)
+                self.generate_serial(new_remaining, new_order)
 
     def check_view_serializabilty(self):
         for schedule in self.serial_schedules:

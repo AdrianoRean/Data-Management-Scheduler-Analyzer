@@ -29,7 +29,7 @@ def sequential_checker(schedule):
     vc = ViewChecker(schedule, n_transactions, resources)
     vc.parse()
     if vc.is_blind:
-        vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
+        vc.generate_serial([transaction for transaction in range (0, n_transactions)])
         view_serializability = vc.check_view_serializabilty()
         if view_serializability:
             return "view"
