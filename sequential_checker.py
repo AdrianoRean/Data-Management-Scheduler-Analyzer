@@ -26,11 +26,10 @@ def sequential_checker(schedule):
     conflict_serializable = cc.check_conflict_serializability(info[0])
     if conflict_serializable:
         return "conflict"
-    vc = ViewChecker(schedule,n_transactions,resources)
-    vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
-    vc.johnson.johnson(cc.conflict_list)
-    blind_write = vc.check_if_cycles_are_blind()
-    if blind_write:
+    vc = ViewChecker(schedule, n_transactions, resources)
+    vc.parse()
+    if vc.is_blind:
+        vc.generate_serial([transaction for transaction in range (0, n_transactions)],[], n_transactions, resources)
         view_serializability = vc.check_view_serializabilty()
         if view_serializability:
             return "view"

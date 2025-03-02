@@ -2,8 +2,14 @@ from copy import deepcopy
 
 class ViewChecker:
     
-    def __init__(self, n_transactions):
+    def __init__(self, 
+            schedule,
+            n_transactions,
+            resources):
+        self.schedule = schedule
         self.n_transactions = n_transactions
+        self.resources = resources
+        
         self.is_blind = False
         self.serial_schedules = {}
         '''
@@ -35,8 +41,8 @@ class ViewChecker:
             ]
         }
         '''
-        #self.resources_touched_transactions = {}
-'''
+        self.resources_touched_transactions = {}
+        '''
         Nella forma di  (per due transazioni e due elementi):
         {
             "element_1" : {
@@ -49,30 +55,30 @@ class ViewChecker:
             }
         }
         '''
-        #self.read_from = {}
-'''
-        Nella forma di (per due transazioni e due elementi):
-        {
-            transaction_0 : {
-                "element_1" : "",
-                "element_2" : trasaction_2
-            },
-            transaction_1 : {
-                "element_1" : "",
-                "element_2" : ""
+        self.read_from = {}
+        '''
+            Nella forma di (per due transazioni e due elementi):
+            {
+                transaction_0 : {
+                    "element_1" : "",
+                    "element_2" : trasaction_2
+                },
+                transaction_1 : {
+                    "element_1" : "",
+                    "element_2" : ""
+                }
             }
-        }
+            '''
+        self.final_write = {}
         '''
-        #self.final_write = {}
-'''
-        Nella forma di  (per due transazioni e due elementi):
-        {
-            "element_1" : transaction_0,
-            "element_2" : transaction_1
-        }
-        '''
+            Nella forma di  (per due transazioni e due elementi):
+            {
+                "element_1" : transaction_0,
+                "element_2" : transaction_1
+            }
+            '''
         #self.serial_schedules = {}
-'''
+        '''
         Nella forma di (per due transazioni e due elementi):
         {
             "01" : [
