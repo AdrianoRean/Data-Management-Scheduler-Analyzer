@@ -14,13 +14,15 @@ class TwoPLChecker:
         for key in self.transactions_involved.keys():
             self.transactions_involved[key] = [(other_tr, other_act) for (other_tr, other_act) in self.transactions_involved[key] if other_tr != transaction]
 
-    def need_same_resource(self,loop):
+    def need_same(self,loop):
         resources = []
-        for _,r in loop:
-            if r in resources:
+        transaction = []
+        for t,r in loop:
+            if r in resources or t in transaction:
                 return True
             else:
                 resources.append(r)
+                transaction.append(t)
         return False
         
     def check_if_lock_available(self, transaction, action, resource, index, loop=[]):
@@ -28,11 +30,14 @@ class TwoPLChecker:
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
-        elif self.need_same_resource(loop):
-            return False
-        else:
-            return True
 
+        # 𝑂(𝑛)
+        if self.need_same(loop):
+            return False
+        
+        if index== 0:
+            return True
+        
         # Shared lock?
         if action == "R" and previous_action == "R":
             return True
@@ -54,7 +59,7 @@ class TwoPLChecker:
             return True
         
     def parse(self):
-
+        # 𝑂(𝑛)
         for operation in (self.schedule):
             action,tr,resource = operation
                     
