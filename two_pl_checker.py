@@ -26,12 +26,12 @@ class TwoPLChecker:
         return False
         
     def check_if_lock_available(self, transaction, action, resource, index, loop=[]):
-
+        ''' 𝑂(R⋅T)'''
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
 
-        # 𝑂(𝑛)
+        # 𝑂(min(R,T))
         if self.need_same(loop):
             return False
         
