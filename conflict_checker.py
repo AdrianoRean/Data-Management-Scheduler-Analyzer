@@ -66,7 +66,7 @@ from copy import deepcopy
         
 class ConflictChecker:
     
-    def __init__(self,  schedule, resources, n_transactions, remaining_conflicts = {}, conflicts={}, conflict_list = {}, resources_touched_transactions = {}):
+    def __init__(self,  schedule, resources, n_transactions, remaining_conflicts = {}, conflicts={}, resources_touched_transactions = {}):
         self.conflict_serializable = True
         self.info = (0, [])
         self.resources = resources
@@ -75,7 +75,6 @@ class ConflictChecker:
         
         self.remaining_conflicts = remaining_conflicts
         self.conflicts = conflicts
-        self.conflict_list = conflict_list
         self.resources_touched_transactions = resources_touched_transactions
              
     def parse(self):
@@ -116,17 +115,6 @@ class ConflictChecker:
                             self.remaining_conflicts[transaction].remove(other_transaction)
                 else:
                     self.resources_touched_transactions[resource]["Reads"].add(transaction)
-
-    def create_conflict_list(self):
-        
-        for i in range(0, self.n_transactions):
-            self.conflict_list[i] = []
-            
-        for i in range(0, self.n_transactions):
-            c_list = self.conflicts[i]
-            
-            for other_transaction in c_list:
-                self.conflict_list[other_transaction].append(i)
                 
     def check_conflict_serializability(self):
         remaining = [i for i in range(0, self.n_transactions)]

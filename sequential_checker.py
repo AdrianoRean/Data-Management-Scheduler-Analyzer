@@ -24,7 +24,6 @@ def sequential_checker(schedule):
     # Conflict-equivalent checker
     cc = ConflictChecker(schedule,resources,n_transactions)
     cc.parse()
-    cc.create_conflict_list()
     conflict_serializable = cc.check_conflict_serializability()
     if conflict_serializable:
         return "conflict"
