@@ -136,7 +136,7 @@ class ConflictChecker:
         visited[actual_node] = True
         
         while True:
-            if self.check_cycle(self.conflict_list, self.n_transactions, actual_node, remaining, visited):
+            if self.check_cycle(self.conflicts, self.n_transactions, actual_node, remaining, visited):
                 return False
             else:
                 if remaining != []:
@@ -151,7 +151,9 @@ class ConflictChecker:
             if visited[next_node]:
                 return True
             elif next_node in remaining:
-                visited[next_node] = True
+                new_visited = visited.copy()
+                new_visited[next_node] = True
                 remaining.remove(next_node)
-                return self.check_cycle(graph, n_transaction, next_node, remaining, visited)
+                if self.check_cycle(graph, n_transaction, next_node, remaining, new_visited):
+                    return True
         return False
