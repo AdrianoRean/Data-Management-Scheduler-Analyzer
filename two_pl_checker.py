@@ -88,11 +88,12 @@ class TwoPLChecker:
             #                               risorsa da lockare
             index = self.transactions_involved[resource].index((tr,action))
             # per ogni transazione che richiede la risorsa prima di lui controlla se ha qualcosa
-            result = self.check_if_lock_available(tr, action, resource, index,loop_resources=[resource], loop_transactions=[tr])
-            if not result:
-                return False
-            #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
-            self.resources_needed[str(tr)].remove((resource, action))
+            if action != "C":
+                result = self.check_if_lock_available(tr, action, resource, index,loop_resources=[resource], loop_transactions=[tr])
+                if not result:
+                    return False
+                #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
+                self.resources_needed[str(tr)].remove((resource, action))
             
             # Ho fatto tutto?
             if len(self.resources_needed[str(tr)]) == 0:
