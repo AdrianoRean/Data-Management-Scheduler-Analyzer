@@ -37,13 +37,6 @@ two_pl_schedules = [
         ["W", 1, "A"],
         ["W", 0, "B"],
         ["W", 1, "B"]
-    ],    [
-        [2,["A","B"]],
-        ["R", 0, "A"],
-        ["R", 1, "B"],
-        ["W", 0, "A"],
-        ["W", 1, "B"],
-
     ]
 
 ]
@@ -133,7 +126,13 @@ conflict_schedules = [
     ["W", 2, "A"],
     ["W", 2, "B"],
     ["W", 0, "B"],
-    ],
+    ],  [
+        [2,["A","B"]],
+        ["R", 0, "A"],
+        ["R", 1, "B"],
+        ["W", 0, "A"],
+        ["W", 1, "B"],
+    ]
 ]
 schedules = two_pl_schedules + conflict_schedules + view_schedules + none_schedule
 #random.shuffle(schedules)
