@@ -99,16 +99,18 @@ class ConflictChecker:
             action,transaction, resource = operation
             
             if resource != "":
-                
-                for other_transaction in self.remaining_conflicts[transaction]:
+                #to avoid for inconsistencies
+                rm = self.remaining_conflicts[transaction].copy()
+                for other_transaction in rm:
                     if other_transaction in self.resources_touched_transactions[resource]["Writes"]:
                         self.conflicts[transaction].append(other_transaction)
                         self.remaining_conflicts[transaction].remove(other_transaction)
                 
                 if action == "W":
                     self.resources_touched_transactions[resource]["Writes"].add(transaction)
-                    
-                    for other_transaction in self.remaining_conflicts[transaction]:
+                    #to avoid for inconsistencies
+                    rm = self.remaining_conflicts[transaction].copy()
+                    for other_transaction in rm:
                         if other_transaction in self.resources_touched_transactions[resource]["Reads"]:
                             self.conflicts[transaction].append(other_transaction)
                             self.remaining_conflicts[transaction].remove(other_transaction)
