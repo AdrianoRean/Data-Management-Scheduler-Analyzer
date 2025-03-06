@@ -29,8 +29,7 @@ def parallel_checker(schedule):
         return "conflict"
     if parser.is_blind:
         vc = ViewChecker(schedule=schedule, n_transactions=n_transactions, resources=resources, is_blind=parser.is_blind, to_serial=parser.to_serial, read_from=parser.read_from, final_write=parser.final_write)
-        vc.generate_serial([transaction for transaction in range (0, n_transactions)])
-        view_serializability = vc.check_view_serializabilty()
+        view_serializability = vc.generate_and_check_serial([transaction for transaction in range (0, n_transactions)])
         if view_serializability:
             return "view"
 
