@@ -2,15 +2,18 @@ from parallel_checker import parallel_checker
 from sequential_checker import sequential_checker
 from copy import deepcopy
 import time
+import json
 from schedules import *
 
-def calculate_averages(time_results, experiments):
+def calculate_averages(time_results, experiments, save = False):
     averages = {}
     best_checker_per_schedule = {}
+    time_for_schedule = {}
     
     for checker, categories in time_results.items():
         index = 0
         averages[checker] = {}
+        time_for_schedule[checker] = {}
         total_time = 0
         total_count = 0
         
@@ -25,46 +28,74 @@ def calculate_averages(time_results, experiments):
             total_count += len(times)
             
             for i, delta in times:
-                if index not in best_checker_per_schedule or delta/experiments < best_checker_per_schedule[i][1]:
-                    best_checker_per_schedule[index] = (checker, delta/experiments, category)
+                time_for_schedule[checker][index] = (delta/experiments, category)
+                if index not in best_checker_per_schedule or time_for_schedule[checker][index][0] < best_checker_per_schedule[index][1]:
+                    best_checker_per_schedule[index] = (checker, time_for_schedule[checker][index][0], category)
                 index += 1
         
         # Calculate overall average
         averages[checker]['overall'] = total_time / total_count if total_count > 0 else 0
     
+    if save:
+        with open("results.json", "w") as file:    
+            results = {
+                "Experiments" : experiments,
+                "Categories" : averages,
+                "Schedules" : time_for_schedule
+            }  
+            json.dump(results, file, indent=4)
+    
     return averages, best_checker_per_schedule
 
 def print_results(averages, best_checkers, experiments):
-    print(f"Results averaged on {experiments} runs\n\n")
+    with open("result.txt", "w") as file:
+        line = f"Results averaged on {experiments} runs\n\n"
+        print(line)
+        file.write(line + "\n")
+            
+        for schedule, result in best_checkers.items():
+            line = f"For schedule {schedule} which is {result[2]} the best checker is: {result[0]}"
+            print(line)
+            file.write(line + "\n")
         
-    for schedule, result in best_checkers.items():
-        print(f"For schedule {schedule} which is {result[2]} the best checker is: {result[0]}")
+        line = "\n##############################\n"
+        print(line)
+        file.write(line + "\n")
+            
+        average_results = {
+            "two_pl" : {},
+            "conflict" : {},
+            "view" : {},
+            "none" : {},
+            "overall" : {}
+        }
+        for checker, results in averages.items():
+            for category, result in results.items():
+                average_results[category][checker] = result
         
-    average_results = {
-        "two_pl" : {},
-        "conflict" : {},
-        "view" : {},
-        "none" : {},
-        "overall" : {}
-    }
-    for checker, results in averages.items():
-        for category, result in results.items():
-            average_results[category][checker] = result
-    
-    for category, results in average_results.items():
-        print(f"Results for {category}")
-        checkers = list(results.keys())
-        print(f"For {checkers[0]}, {checkers[1]} checkers: {results[checkers[0]]} --- {results[checkers[1]]}.")
-        if results[checkers[0]] < results[checkers[1]]:
-            print(f"Hence winner is {checkers[0]}")
-        elif results[checkers[0]] > results[checkers[1]]:
-            print(f"Hence winner is {checkers[1]}")
-        else:
-            print(f"No winner")
-        print("*************************")
-    print("######################")
+        for category, results in average_results.items():
+            line = f"Results for {category}"
+            print(line)
+            file.write(line + "\n")
+            checkers = list(results.keys())
+            line = f"For {checkers[0]}, {checkers[1]} checkers: {results[checkers[0]]} --- {results[checkers[1]]}."
+            print(line)
+            file.write(line + "\n")
+            if results[checkers[0]] < results[checkers[1]]:
+                line = f"Hence winner is {checkers[0]}"
+            elif results[checkers[0]] > results[checkers[1]]:
+                line = f"Hence winner is {checkers[1]}"
+            else:
+                line = f"No winner"
+            line = line + "\n*************************"
+            print(line)
+            file.write(line + "\n")
         
-def run_experiments(experiments):
+        line = "##############################"
+        print(line)
+        file.write(line + "\n")
+        
+def run_experiments(experiments, save = False):
     checkers = [("sequential_checker", sequential_checker), ("parallel_checker", parallel_checker)]
     time_results = {
         "parallel_checker" : {
@@ -94,9 +125,9 @@ def run_experiments(experiments):
                     
                     #print(f"Checker: {checker[0]}\nSchedule: {index}\nResult: {result}\nElapsed time: {delta}\n*****************")
             
-    averages, best_checkers = calculate_averages(time_results, experiments)
+    averages, best_checkers = calculate_averages(time_results, experiments, save)
     
     print_results(averages, best_checkers, experiments)
         
 if __name__ == "__main__":
-    run_experiments(10000)
+    run_experiments(10000, True)
