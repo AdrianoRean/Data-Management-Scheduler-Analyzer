@@ -8,7 +8,6 @@ class TwoPLChecker:
         self.resources_needed = resources_needed
         self.transactions_involved = transactions_involved
 
-
     def clean_transaction_involved(self, transaction):
 
         for key in self.transactions_involved.keys():

@@ -11,30 +11,29 @@ schedule_to_analyze = 5
 def sequential_checker(schedule):
     # the sequential checker doesn't do any preprocessing in parallel 
     # it checks the property one by one
-    blind_write = None
     info = schedule.pop(0)
     n_transactions = info[0]
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker(schedule)
+    pl = TwoPLChecker(schedule, {}, {})
     pl.parse()
     if pl.two_pl_checker():
         return "two_pl"
     # Conflict-equivalent checker
-    cc = ConflictChecker(schedule,resources,n_transactions)
+    cc = ConflictChecker(schedule,resources,n_transactions, {}, {}, {})
     cc.parse()
     conflict_serializable = cc.check_conflict_serializability()
     if conflict_serializable:
         return "conflict"
-    vc = ViewChecker(schedule, n_transactions, resources)
+    vc = ViewChecker(schedule, n_transactions, resources, False, {}, {}, {})
     vc.parse()
     if vc.is_blind:
         view_serializability = vc.generate_and_check_serial([transaction for transaction in range (0, n_transactions)])
         if view_serializability:
             return "view"
 
-    return "None"
+    return "none"
 
 if __name__ == "__main__":
     time_results = {}

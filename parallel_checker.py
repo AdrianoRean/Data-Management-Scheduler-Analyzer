@@ -33,7 +33,7 @@ def parallel_checker(schedule):
         if view_serializability:
             return "view"
 
-    return "None"
+    return "none"
 
 if __name__ == "__main__":
     time_results = {}
