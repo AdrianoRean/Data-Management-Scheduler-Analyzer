@@ -47,7 +47,10 @@ class TwoPLChecker:
                 if other_resource in loop_resources:
                     if previous_transaction != loop_resources[other_resource]:
                         return False
-                loop_resources[other_resource] = previous_transaction
+                    else:
+                        loop_resources[other_resource] = -1
+                else:
+                    loop_resources[other_resource] = previous_transaction
                     
                 result = self.check_if_lock_available(previous_transaction, other_action, other_resource, other_index, loop_resources.copy())
                 if not result:
