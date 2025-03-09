@@ -24,7 +24,8 @@ class TwoPLChecker:
                 transaction.append(t)
         return False
         
-    def check_if_lock_available(self, transaction, action, resource, index, loop_resources=[]):
+    def check_if_lock_available(self, transaction, action, resource, index, loop_resources={}):
+        
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
@@ -40,12 +41,13 @@ class TwoPLChecker:
         # L'azione precedente può anticipare i lock?
         else:
             
-            for (other_resource,other_action) in self.resources_needed[str(previous_transaction)]:
+            for (other_resource, other_action) in self.resources_needed[str(previous_transaction)]:
                 other_index = self.transactions_involved[other_resource].index((previous_transaction,other_action))
                 
                 if other_resource in loop_resources:
-                    return False
-                loop_resources.append(other_resource)
+                    if previous_transaction != loop_resources[other_resource]:
+                        return False
+                loop_resources[other_resource] = previous_transaction
                     
                 result = self.check_if_lock_available(previous_transaction, other_action, other_resource, other_index, loop_resources.copy())
                 if not result:
@@ -86,7 +88,7 @@ class TwoPLChecker:
             index = self.transactions_involved[resource].index((tr,action))
             # per ogni transazione che richiede la risorsa prima di lui controlla se ha qualcosa
             if action != "C":
-                result = self.check_if_lock_available(tr, action, resource, index,loop_resources=[resource])
+                result = self.check_if_lock_available(tr, action, resource, index,loop_resources={resource:tr})
                 if not result:
                     return False
                 #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
