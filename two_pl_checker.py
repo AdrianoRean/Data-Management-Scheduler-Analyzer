@@ -24,8 +24,7 @@ class TwoPLChecker:
                 transaction.append(t)
         return False
         
-    def check_if_lock_available(self, transaction, action, resource, index, loop_resources=[], loop_transactions=[]):
-        ''' 𝑂(R⋅T)'''
+    def check_if_lock_available(self, transaction, action, resource, index, loop_resources=[]):
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
@@ -44,12 +43,11 @@ class TwoPLChecker:
             for (other_resource,other_action) in self.resources_needed[str(previous_transaction)]:
                 other_index = self.transactions_involved[other_resource].index((previous_transaction,other_action))
                 
-                if other_resource in loop_resources or previous_transaction in loop_transactions:
+                if other_resource in loop_resources:
                     return False
                 loop_resources.append(other_resource)
-                loop_transactions.append(previous_transaction)
                     
-                result = self.check_if_lock_available(previous_transaction, other_action, other_resource, other_index, loop_resources.copy(), loop_transactions.copy())
+                result = self.check_if_lock_available(previous_transaction, other_action, other_resource, other_index, loop_resources.copy())
                 if not result:
                     return False
             return True
@@ -88,7 +86,7 @@ class TwoPLChecker:
             index = self.transactions_involved[resource].index((tr,action))
             # per ogni transazione che richiede la risorsa prima di lui controlla se ha qualcosa
             if action != "C":
-                result = self.check_if_lock_available(tr, action, resource, index,loop_resources=[resource], loop_transactions=[tr])
+                result = self.check_if_lock_available(tr, action, resource, index,loop_resources=[resource])
                 if not result:
                     return False
                 #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
