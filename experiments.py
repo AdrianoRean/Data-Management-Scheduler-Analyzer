@@ -14,18 +14,15 @@ def calculate_averages(time_results, experiments, save = False):
         index = 0
         averages[checker] = {}
         time_for_schedule[checker] = {}
-        total_time = 0
-        total_count = 0
+        averages[checker]['overall'] = 0
         
         for category, times in categories.items():
             if times:
-                avg_time = sum(delta/experiments for _, delta in times) / len(times)
+                avg_time = sum(delta for _, delta in times) / (experiments * len(times))
             else:
                 avg_time = 0
             
             averages[checker][category] = avg_time
-            total_time += sum(delta for _, delta in times)/experiments
-            total_count += len(times)
             
             for i, delta in times:
                 time_for_schedule[checker][index] = (delta/experiments, category)
@@ -33,8 +30,8 @@ def calculate_averages(time_results, experiments, save = False):
                     best_checker_per_schedule[index] = (checker, time_for_schedule[checker][index][0], category)
                 index += 1
         
-        # Calculate overall average
-        averages[checker]['overall'] = total_time / total_count if total_count > 0 else 0
+            # Calculate overall average
+            averages[checker]['overall'] += avg_time
     
     if save:
         with open("results.json", "w") as file:    
@@ -130,4 +127,4 @@ def run_experiments(experiments, save = False):
     print_results(averages, best_checkers, experiments)
         
 if __name__ == "__main__":
-    run_experiments(1, True)
+    run_experiments(10000, True)
