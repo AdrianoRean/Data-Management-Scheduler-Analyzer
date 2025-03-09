@@ -130,4 +130,4 @@ def run_experiments(experiments, save = False):
     print_results(averages, best_checkers, experiments)
         
 if __name__ == "__main__":
-    run_experiments(10000, True)
+    run_experiments(1, True)

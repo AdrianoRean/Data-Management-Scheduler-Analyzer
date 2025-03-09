@@ -1,4 +1,4 @@
-Results averaged on 10000 runs
+Results averaged on 1 runs
 
 
 For schedule 0 which is two_pl the best checker is: sequential_checker
@@ -6,36 +6,43 @@ For schedule 1 which is two_pl the best checker is: sequential_checker
 For schedule 2 which is two_pl the best checker is: sequential_checker
 For schedule 3 which is two_pl the best checker is: sequential_checker
 For schedule 4 which is two_pl the best checker is: sequential_checker
-For schedule 5 which is conflict the best checker is: sequential_checker
-For schedule 6 which is conflict the best checker is: sequential_checker
-For schedule 7 which is view the best checker is: parallel_checker
-For schedule 8 which is none the best checker is: parallel_checker
-For schedule 9 which is none the best checker is: parallel_checker
-For schedule 10 which is none the best checker is: parallel_checker
-For schedule 11 which is none the best checker is: parallel_checker
-For schedule 12 which is none the best checker is: parallel_checker
-For schedule 13 which is none the best checker is: parallel_checker
+For schedule 5 which is two_pl the best checker is: sequential_checker
+For schedule 6 which is two_pl the best checker is: sequential_checker
+For schedule 7 which is conflict the best checker is: parallel_checker
+For schedule 8 which is conflict the best checker is: parallel_checker
+For schedule 9 which is conflict the best checker is: parallel_checker
+For schedule 10 which is conflict the best checker is: sequential_checker
+For schedule 11 which is view the best checker is: parallel_checker
+For schedule 12 which is view the best checker is: parallel_checker
+For schedule 13 which is view the best checker is: parallel_checker
+For schedule 14 which is none the best checker is: parallel_checker
+For schedule 15 which is none the best checker is: parallel_checker
+For schedule 16 which is none the best checker is: parallel_checker
+For schedule 17 which is none the best checker is: parallel_checker
+For schedule 18 which is none the best checker is: sequential_checker
+For schedule 19 which is none the best checker is: parallel_checker
+For schedule 20 which is none the best checker is: parallel_checker
 
 ##############################
 
 Results for two_pl
-For parallel_checker, sequential_checker checkers: 2.3210429993414437e-05 --- 8.692481996986317e-06.
+For parallel_checker, sequential_checker checkers: 5.400000061074804e-05 --- 2.194285635986099e-05.
 Hence winner is sequential_checker
 *************************
 Results for conflict
-For parallel_checker, sequential_checker checkers: 2.3093964983490878e-05 --- 2.220535998349078e-05.
+For parallel_checker, sequential_checker checkers: 5.280000095808646e-05 --- 5.060000148660038e-05.
 Hence winner is sequential_checker
 *************************
 Results for view
-For parallel_checker, sequential_checker checkers: 4.281258000155503e-05 --- 5.2113020009710455e-05.
+For parallel_checker, sequential_checker checkers: 0.0002861333329443975 --- 0.00042806666654845077.
 Hence winner is parallel_checker
 *************************
 Results for none
-For parallel_checker, sequential_checker checkers: 0.00016155150165953576 --- 0.0001737538966682526.
+For parallel_checker, sequential_checker checkers: 0.36072642857158954 --- 0.3796737285717557.
 Hence winner is parallel_checker
 *************************
 Results for overall
-For parallel_checker, sequential_checker checkers: 8.388297642091597e-05 --- 8.446496642650994e-05.
+For parallel_checker, sequential_checker checkers: 0.12031107619086037 --- 0.1266360142858286.
 Hence winner is parallel_checker
 *************************
 ##############################
