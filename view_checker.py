@@ -87,7 +87,6 @@ class ViewChecker:
             if resource != "":
                 
                 if action == "W":
-                    self.resources_touched_transactions[resource]["Writes"].add(transaction)
                     
                     if transaction not in self.resources_touched_transactions[resource]["Reads"]:
                         self.is_blind = True
