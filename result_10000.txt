@@ -1,0 +1,48 @@
+Results averaged on 10000 runs
+
+
+For schedule 0 which is two_pl the best checker is: sequential_checker
+For schedule 1 which is two_pl the best checker is: sequential_checker
+For schedule 2 which is two_pl the best checker is: sequential_checker
+For schedule 3 which is two_pl the best checker is: sequential_checker
+For schedule 4 which is two_pl the best checker is: sequential_checker
+For schedule 5 which is two_pl the best checker is: sequential_checker
+For schedule 6 which is two_pl the best checker is: sequential_checker
+For schedule 7 which is conflict the best checker is: sequential_checker
+For schedule 8 which is conflict the best checker is: sequential_checker
+For schedule 9 which is conflict the best checker is: sequential_checker
+For schedule 10 which is conflict the best checker is: sequential_checker
+For schedule 11 which is view the best checker is: parallel_checker
+For schedule 12 which is view the best checker is: parallel_checker
+For schedule 13 which is view the best checker is: parallel_checker
+For schedule 14 which is none the best checker is: parallel_checker
+For schedule 15 which is none the best checker is: parallel_checker
+For schedule 16 which is none the best checker is: parallel_checker
+For schedule 17 which is none the best checker is: parallel_checker
+For schedule 18 which is none the best checker is: parallel_checker
+For schedule 19 which is none the best checker is: parallel_checker
+For schedule 20 which is none the best checker is: parallel_checker
+
+##############################
+
+Results for two_pl
+For parallel_checker, sequential_checker checkers: 4.568176429160563e-05 --- 1.7569947147057975e-05.
+Hence winner is sequential_checker
+*************************
+Results for conflict
+For parallel_checker, sequential_checker checkers: 5.037700250404669e-05 --- 4.755428249573015e-05.
+Hence winner is sequential_checker
+*************************
+Results for view
+For parallel_checker, sequential_checker checkers: 0.0003100748700116431 --- 0.0003437036566555131.
+Hence winner is parallel_checker
+*************************
+Results for none
+For parallel_checker, sequential_checker checkers: 0.0009909388657058506 --- 0.0010107268100025975.
+Hence winner is parallel_checker
+*************************
+Results for overall
+For parallel_checker, sequential_checker checkers: 0.001397072502513146 --- 0.0014195546963008988.
+Hence winner is parallel_checker
+*************************
+##############################
