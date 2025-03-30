@@ -16,8 +16,9 @@ def sequential_checker(schedule):
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker(schedule, {}, {})
+    pl = TwoPLChecker(schedule, resources, {}, {})
     pl.parse()
+    pl.parse_lock()
     if pl.two_pl_checker():
         return "two_pl"
     # Conflict-equivalent checker
@@ -38,7 +39,7 @@ def sequential_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in none_schedule[-1:]:
+    for s in two_pl_schedules:
         start_time = time.perf_counter() # Avvia il timer
         result = sequential_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 

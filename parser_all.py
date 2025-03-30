@@ -9,7 +9,7 @@ class Parser:
         
         #TwoPL
         self.resources_needed = {} #lista di risorse richieste
-        self.transactions_involved = {} # lista di transazioni che richiedono la risorsa
+        self.resources_to_use = {} #lista di risorse richieste
         
         #Conflict-Serializable variables
         self.remaining_conflicts = {}
@@ -108,14 +108,10 @@ class Parser:
             # RESOURCE_NEEDED
             if str(transaction) not in self.resources_needed.keys():
                 self.resources_needed[str(transaction)]=[(resource,action)]
+                self.resources_to_use[str(transaction)]=[(resource,action)]
             else:
                 self.resources_needed[str(transaction)].append((resource,action))
-
-            # TRANSACTIONS_INVOLVED     
-            if resource not in self.transactions_involved.keys():
-                self.transactions_involved[resource]=[(transaction,action)]
-            else:
-                self.transactions_involved[resource].append((transaction,action))
+                self.resources_to_use[str(transaction)].append((resource,action))
             
             if resource != "":
                 

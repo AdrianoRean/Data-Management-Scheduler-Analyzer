@@ -19,7 +19,8 @@ def parallel_checker(schedule):
     parser = Parser(or_schedule=schedule, n_transactions=n_transactions, resources=resources)
     parser.parse()
     # P2L checker
-    pl = TwoPLChecker(schedule=schedule, resources_needed=parser.resources_needed, transactions_involved=parser.transactions_involved)
+    pl = TwoPLChecker(schedule=schedule, resources=resources, resources_needed=parser.resources_needed, resources_to_use=parser.resources_to_use)
+    pl.parse_lock()
     if pl.two_pl_checker():
         return "two_pl"
     # Conflict-equivalent checker
@@ -38,7 +39,7 @@ def parallel_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in schedules:
+    for s in conflict_schedules:
         start_time = time.perf_counter() # Avvia il timer
         result = parallel_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
