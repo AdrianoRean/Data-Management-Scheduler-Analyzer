@@ -367,5 +367,31 @@ none_schedule = [
     ]
 ]
 
+maybe_schedule = [
+    [
+        [2,["A","B"]],
+        ["R", 0, "A"],
+        ["R", 1, "A"],
+        ["W", 1, "A"],
+        ["W", 0, "A"]
+    ],
+    [
+        [3,["A", "B", "C"]],
+        ["W", 0, "A"],
+        ["W", 1, "A"],
+        ["R", 2, "B"],
+        ["R", 1, "B"],
+        ["R", 0, "B"],
+        ["W", 2, "C"]
+     ],
+    [
+        [2,["A", "B"]],
+        ["R", 0, "A"],
+        ["R", 1, "A"],
+        ["W", 1, "A"],
+        ["W", 0, "B"]
+     ]
+]
+
 schedules = two_pl_schedules + conflict_schedules + view_schedules + none_schedule
 #random.shuffle(schedules)
