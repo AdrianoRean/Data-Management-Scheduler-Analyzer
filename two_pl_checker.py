@@ -23,7 +23,7 @@ class TwoPLChecker:
                 resources.append(r)
                 transaction.append(t)
         return False
-        
+    
     def check_if_lock_available(self, transaction, action, resource, index, loop_resources={}):
         
         # Sono il primo?
@@ -34,16 +34,42 @@ class TwoPLChecker:
         
         # Shared lock?
         if action == "R" and previous_action == "R":
+            actions = self.transactions_involved[resource][0:index]
+            for _,a in actions:
+                if a != "R":
+                    return False
+            return True 
+        
+        # Upgrading lock or there was shared lock?
+        elif transaction==previous_transaction:
+            
+            for (transaction_involved, _) in self.transactions_involved[resource]:
+                if transaction_involved == transaction:
+                    continue
+
+                for (other_resource, other_action) in self.resources_needed[str(transaction_involved)]:
+                    other_index = self.transactions_involved[other_resource].index((transaction_involved,other_action))
+                    
+                    if other_resource in loop_resources:
+                        if transaction_involved != loop_resources[other_resource]:
+                            return False
+                        else:
+                            loop_resources[other_resource] = -1
+                    else:
+                        loop_resources[other_resource] = transaction_involved
+                    
+                    result = self.check_if_lock_available(transaction_involved, other_action, other_resource, other_index, loop_resources.copy())
+                    if not result:
+                        return False
             return True
-        # Sono sempre io?
-        elif transaction == previous_transaction: 
-            return True
+               
+
         # L'azione precedente può anticipare i lock?
         else:
             
             for (other_resource, other_action) in self.resources_needed[str(previous_transaction)]:
                 other_index = self.transactions_involved[other_resource].index((previous_transaction,other_action))
-                
+               
                 if other_resource in loop_resources:
                     if previous_transaction != loop_resources[other_resource]:
                         return False
