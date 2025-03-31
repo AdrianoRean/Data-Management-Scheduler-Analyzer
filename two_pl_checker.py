@@ -25,7 +25,6 @@ class TwoPLChecker:
         return False
     
     def check_if_lock_available(self, transaction, action, resource, index, loop_resources={}):
-        
         # Sono il primo?
         if index != 0:
             previous_transaction, previous_action = self.transactions_involved[resource][index - 1]
@@ -39,7 +38,8 @@ class TwoPLChecker:
                 if a != "R":
                     return False
             return True 
-        
+        if transaction==previous_transaction and index==1:
+            return True
         # Upgrading lock or there was shared lock?
         elif transaction==previous_transaction:
             

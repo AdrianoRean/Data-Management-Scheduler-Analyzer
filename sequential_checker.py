@@ -38,7 +38,7 @@ def sequential_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in two_pl_schedules:
+    for s in two_pl_schedules[5:6]:
         start_time = time.perf_counter() # Avvia il timer
         result = sequential_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
