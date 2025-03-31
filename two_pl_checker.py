@@ -2,8 +2,9 @@ from schedules import schedules
 
 class TwoPLChecker:
     
-    def __init__(self, schedule, resources, resources_needed={}, resources_to_use={}):
+    def __init__(self, n_transactions, schedule, resources, resources_needed={}, resources_to_use={}):
    
+        self.n_transactions = n_transactions
         self.schedule = schedule
         self.resources = resources
         self.resources_needed = resources_needed
@@ -59,20 +60,22 @@ class TwoPLChecker:
         
     def check_if_lock_available(self, transaction, action, resource, anticipating = False, loop = []):        
         #No locks
-        if self.lock[resource] == None:
+        if self.lock[resource] == None and self.phase[str(transaction)]:
             self.lock[resource] = (action, [transaction])
             self.resources_needed[str(transaction)].remove((resource, action))
             if not anticipating:
                 self.resources_to_use[str(transaction)].remove((resource, action))
                 
                 if len(self.resources_to_use[str(transaction)]) == 0:
+                    self.phase[str(transaction)] = False
                     self.lock[resource] = None
                     
             return True
-        #My lock
+        #Lock already acquired
         elif not anticipating and ((self.lock[resource] == ("W", [transaction]) or (action == "R" and self.lock[resource][0] == "R" and transaction in self.lock[resource][1]))):
             self.resources_to_use[str(transaction)].remove((resource, action))
             if len(self.resources_to_use[str(transaction)]) == 0:
+                self.phase[str(transaction)] = False
                 if action == "W":
                     self.lock[resource] = None
                 else:
@@ -83,12 +86,13 @@ class TwoPLChecker:
         #Other's lock
         elif action == "R":
             # Shared lock?
-            if self.lock[resource][0] == "R" or self.anticipate_locks(transaction, resource, loop):
+            if self.phase[str(transaction)] and self.anticipate_locks(transaction, resource, loop):
                 self.lock[resource][1].append(transaction)
                 self.resources_needed[str(transaction)].remove((resource, action))
                 if not anticipating:
                     self.resources_to_use[str(transaction)].remove((resource, action))
                     if len(self.resources_to_use[str(transaction)]) == 0:
+                        self.phase[str(transaction)] = False
                         self.lock[resource][1].remove(transaction)
                         if len(self.lock[resource][1]) == 0:
                             self.lock = None
@@ -98,12 +102,13 @@ class TwoPLChecker:
                 return False
         #Upgrade lock
         else:
-            if self.lock[resource] == ("R", [transaction]) or self.anticipate_locks(transaction, resource, loop):
+            if self.phase[str(transaction)] and (self.lock[resource] == ("R", [transaction]) or self.anticipate_locks(transaction, resource, loop)):
                 self.lock[resource] = (action, [transaction])
                 self.resources_needed[str(transaction)].remove((resource, action))
                 if not anticipating:
                     self.resources_to_use[str(transaction)].remove((resource, action))
                     if len(self.resources_to_use[str(transaction)]) == 0:
+                        self.phase[str(transaction)] = False
                         self.lock[resource] = None
                 return True
             
@@ -136,8 +141,13 @@ class TwoPLChecker:
          
     def parse_lock(self):    
         self.lock = {}   
+        self.phase = {}
+        
         for resource in self.resources:
             self.lock[resource] = None
+            
+        for i in range(0, self.n_transactions):
+            self.phase[str(i)] = True
 
 
     def two_pl_checker(self):

@@ -16,7 +16,7 @@ def sequential_checker(schedule):
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker(schedule, resources, {}, {})
+    pl = TwoPLChecker(n_transactions, schedule, resources, {}, {})
     pl.parse()
     pl.parse_lock()
     if pl.two_pl_checker():
