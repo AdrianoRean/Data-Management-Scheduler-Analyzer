@@ -1,3 +1,4 @@
+from copy import deepcopy
 from schedules import schedules
 
 class TwoPLChecker:
@@ -46,7 +47,9 @@ class TwoPLChecker:
             if other_transaction == asking_transaction:
                 continue
             else:
-                for (other_resource, other_action) in self.resources_needed[str(other_transaction)]:
+                #Evita casini con modifiche durante i loop
+                r_n = deepcopy(self.resources_needed[str(other_transaction)])
+                for (other_resource, other_action) in r_n:
                     other_tuple = (other_action, other_transaction, other_resource)
                     if other_tuple in loop:
                         return False
@@ -81,23 +84,37 @@ class TwoPLChecker:
                 else:
                     self.lock[resource][1].remove(transaction)
                     if len(self.lock[resource][1]) == 0:
-                        self.lock = None
+                        self.lock[resource] = None
             return True
         #Other's lock
         elif action == "R":
             # Shared lock?
-            if self.phase[str(transaction)] and self.anticipate_locks(transaction, resource, loop):
-                self.lock[resource][1].append(transaction)
-                self.resources_needed[str(transaction)].remove((resource, action))
-                if not anticipating:
-                    self.resources_to_use[str(transaction)].remove((resource, action))
-                    if len(self.resources_to_use[str(transaction)]) == 0:
-                        self.phase[str(transaction)] = False
-                        self.lock[resource][1].remove(transaction)
-                        if len(self.lock[resource][1]) == 0:
-                            self.lock = None
-                        
-                return True
+            if self.phase[str(transaction)]:
+                if self.lock[resource][0] == "R":
+                    self.lock[resource][1].append(transaction)
+                    self.resources_needed[str(transaction)].remove((resource, action))
+                    if not anticipating:
+                        self.resources_to_use[str(transaction)].remove((resource, action))
+                        if len(self.resources_to_use[str(transaction)]) == 0:
+                            self.phase[str(transaction)] = False
+                            self.lock[resource][1].remove(transaction)
+                            if len(self.lock[resource][1]) == 0:
+                                self.lock[resource] = None
+                    return True
+                #Can other transactions anticipate locks?
+                elif self.anticipate_locks(transaction, resource, loop):
+                    self.lock[resource] = (action, [transaction])
+                    self.resources_needed[str(transaction)].remove((resource, action))
+                    if not anticipating:
+                        self.resources_to_use[str(transaction)].remove((resource, action))
+                        if len(self.resources_to_use[str(transaction)]) == 0:
+                            self.phase[str(transaction)] = False
+                            self.lock[resource][1].remove(transaction)
+                            if len(self.lock[resource][1]) == 0:
+                                self.lock[resource] = None    
+                    return True
+                else:
+                    return False
             else:
                 return False
         #Upgrade lock
