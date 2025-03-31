@@ -1,4 +1,5 @@
 from two_pl_checker import TwoPLChecker
+from modular_two_pl_checker import Modular_TwoPLChecker
 import time
 from conflict_checker import ConflictChecker
 from view_checker import ViewChecker
@@ -16,7 +17,7 @@ def sequential_checker(schedule):
     resources = info[1]
 
     # P2L checker
-    pl = TwoPLChecker(n_transactions, schedule, resources, {}, {})
+    pl = Modular_TwoPLChecker(n_transactions, schedule, resources, {}, {})
     pl.parse()
     pl.parse_lock()
     if pl.two_pl_checker():
