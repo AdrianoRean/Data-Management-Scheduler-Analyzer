@@ -39,7 +39,7 @@ def parallel_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in conflict_schedules:
+    for s in none_schedule[2:3]:
         start_time = time.perf_counter() # Avvia il timer
         result = parallel_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
