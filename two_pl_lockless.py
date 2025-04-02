@@ -118,24 +118,23 @@ class TwoPLChecker:
             #                               risorsa da lockare
             index = self.transactions_involved[resource].index((tr,action))
             # per ogni transazione che richiede la risorsa prima di lui controlla se ha qualcosa
-            if action != "C":
-                result = self.check_if_lock_available(tr, action, resource, index,loop_resources={resource:tr})
-                if not result:
-                    return False
-                #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
-                self.resources_needed[str(tr)].remove((resource, action))
+            result = self.check_if_lock_available(tr, action, resource, index,loop_resources={resource:tr})
+            if not result:
+                return False
+            #print(f"Tr: {str(tr)}, Action: {action}, Resource: {resource}, R_Needed: {resources_needed[str(tr)]}")
+            self.resources_needed[str(tr)].remove((resource, action))
             
             # Ho fatto tutto?
             if len(self.resources_needed[str(tr)]) == 0:
                 self.clean_transaction_involved(tr)
 
         return True
-'''
+#'''
 if __name__ == "__main__":
 
     start_time = time.perf_counter() # Avvia il timer
     for i in range(0,10000):
-        two_pl = copy.deepcopy(two_pl_schedules)  # copia completa dei dati
+        two_pl = copy.deepcopy(schedules)  # copia completa dei dati
         for schedule in two_pl:
             info = schedule.pop(0)
             n_transactions = info[0]
@@ -148,8 +147,8 @@ if __name__ == "__main__":
     end_time = time.perf_counter()  # Ferma il timer 
     delta = (end_time-start_time)
     print(f"TWO_PL_LOCKLESS - Elapsed time: {delta}\n*****************")
-'''
-if __name__ == "__main__":
+#'''
+'''if __name__ == "__main__":
 
     for schedule in conflict_schedules:
         info = schedule.pop(0)
@@ -158,4 +157,4 @@ if __name__ == "__main__":
         pl = TwoPLChecker(schedule,{},{})
         pl.parse()
         #print(f'Lo schedule: {schedule} è 2pl? {pl.two_pl_checker()}')
-        print(f'Lo schedule è 2pl? {pl.two_pl_checker()}')
+        print(f'Lo schedule è 2pl? {pl.two_pl_checker()}')'''

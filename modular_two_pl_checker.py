@@ -16,22 +16,19 @@ class Modular_TwoPLChecker:
 
     # Function to check if other transactions can anticipate their locks to allow this one to proceed
     def anticipate_locks(self, action, asking_transaction, resource, loop = []):
-        # First loop: Check if the other transactions that hold the lock still need to use the resource
-        for other_transaction in self.lock[str(resource)][1]:
-            if other_transaction == asking_transaction:
-                continue  # Skip self
-            for for_resource, _  in self.resources_to_use[str(other_transaction)]:
-                #print("for_r",for_resource)
-                #print("res",resource)
-                if for_resource == resource:
-                    return False  # Another transaction still needs the resource → can't release it
-
+                   
         loop.append((action, asking_transaction, resource))
         # Second loop: Check if those transactions can anticipate all their other locks
         for other_transaction in self.lock[str(resource)][1]:
             if other_transaction == asking_transaction:
                 continue
+            # First loop: Check if the other transactions that hold the lock still need to use the resource  
+            # Another transaction still needs the resource → can't release it
+            for for_resource, _  in self.resources_to_use[str(other_transaction)]:
+                if for_resource == resource:
+                    return False
             r_n = deepcopy(self.resources_needed[str(other_transaction)])
+            # Second loop: Check if the other transactions that hold the lock can anticipate
             for (other_resource, other_action) in r_n:
                 other_tuple = (other_action, other_transaction, other_resource)
                 if other_tuple in loop:
@@ -132,19 +129,20 @@ class Modular_TwoPLChecker:
             return self.acquire_new_lock(transaction, action, resource, anticipating)
 
         # Case 2: Transaction already holds the needed lock -> 
-        if not anticipating and self.has_lock(transaction, action, resource):
+        elif not anticipating and self.has_lock(transaction, action, resource):
             return self.use_acquired_lock(transaction, action, resource)
 
         # Case 3: Resource is locked, but a shared read is still possible
-        if action == "R":
+        elif action == "R":
 
             return self.handle_read_lock(action, transaction, resource, anticipating, loop)
 
         # Case 4: Handle write request (either from scratch or upgrade)
-        if action == "W":
+        elif action == "W":
             return self.handle_write_lock(action, transaction, resource, anticipating, loop)
-
-        return False
+        
+        else:
+            return False
 
     # Prepare the data structures needed for the 2PL check
     def parse(self):
@@ -203,7 +201,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     start_time = time.perf_counter() # Avvia il timer
     for i in range(0,10000):
-        two_pl = deepcopy(two_pl_schedules)  # copia completa dei dati
+        two_pl = deepcopy(schedules)  # copia completa dei dati
         for schedule in two_pl:
             info = schedule.pop(0)
             n_transactions = info[0]
