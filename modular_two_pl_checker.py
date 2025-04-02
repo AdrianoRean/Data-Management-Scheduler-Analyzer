@@ -18,7 +18,9 @@ class Modular_TwoPLChecker:
         for other_transaction in self.lock[str(resource)][1]:
             if other_transaction == asking_transaction:
                 continue  # Skip self
-            for _, for_resource in self.resources_to_use[str(other_transaction)]:
+            for for_resource, _  in self.resources_to_use[str(other_transaction)]:
+                print("for_r",for_resource)
+                print("res",resource)
                 if for_resource == resource:
                     return False  # Another transaction still needs the resource → can't release it
 
@@ -33,7 +35,7 @@ class Modular_TwoPLChecker:
                 if other_tuple in loop:
                     return False  # Avoid infinite loops / circular dependencies
                 l = deepcopy(loop)
-                result = self.check_if_lock_available(action, other_transaction, other_action, other_resource, True, l)
+                result = self.check_if_action_legal(other_transaction, other_action, other_resource, True, l)
                 if not result:
                     return False
 
@@ -101,7 +103,6 @@ class Modular_TwoPLChecker:
             return self.acquire_new_lock(transaction, "R", resource, anticipating)
 
         return False
-
     
     def handle_write_lock(self, action, transaction, resource, anticipating, loop):
         if not self.phase[str(transaction)]:
@@ -122,7 +123,7 @@ class Modular_TwoPLChecker:
         return False
 
     
-    def check_if_lock_available(self, transaction, action, resource, anticipating=False, loop=[]):
+    def check_if_action_legal(self, transaction, action, resource, anticipating=False, loop=[]):
 
         # Case 1: Resource is free -> none has locked the resource and the transaction is in growing phase
         if self.lock[resource] is None and self.phase[str(transaction)]:
@@ -134,6 +135,7 @@ class Modular_TwoPLChecker:
 
         # Case 3: Resource is locked, but a shared read is still possible
         if action == "R":
+
             return self.handle_read_lock(action, transaction, resource, anticipating, loop)
 
         # Case 4: Handle write request (either from scratch or upgrade)
@@ -168,9 +170,11 @@ class Modular_TwoPLChecker:
     # Main function to check if the entire schedule respects 2PL
     def two_pl_checker(self):
         for operation in self.schedule:
+            print(operation)
+            print(self.lock)
             action, tr, resource = operation
 
-            result = self.check_if_lock_available(tr, action, resource, False, [])
+            result = self.check_if_action_legal(tr, action, resource, False, [])
             if not result:
                 return False  # If even one operation violates 2PL → invalid schedule
 

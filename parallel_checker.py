@@ -1,4 +1,4 @@
-from two_pl_checker import TwoPLChecker
+from modular_two_pl_checker import Modular_TwoPLChecker
 import time
 from conflict_checker import ConflictChecker
 from view_checker import ViewChecker
@@ -19,7 +19,8 @@ def parallel_checker(schedule):
     parser = Parser(or_schedule=schedule, n_transactions=n_transactions, resources=resources)
     parser.parse()
     # P2L checker
-    pl = TwoPLChecker(n_transactions=n_transactions, schedule=schedule, resources=resources, resources_needed=parser.resources_needed, resources_to_use=parser.resources_to_use)
+    pl = Modular_TwoPLChecker(n_transactions, schedule, resources, {}, {})
+    pl.parse()
     pl.parse_lock()
     if pl.two_pl_checker():
         return "two_pl"
@@ -39,7 +40,7 @@ def parallel_checker(schedule):
 if __name__ == "__main__":
     time_results = {}
     #schedules = schedules[-3:-2]
-    for s in schedules:
+    for s in none_schedule[2:3]:
         start_time = time.perf_counter() # Avvia il timer
         result = parallel_checker(s)
         end_time = time.perf_counter()  # Ferma il timer 
