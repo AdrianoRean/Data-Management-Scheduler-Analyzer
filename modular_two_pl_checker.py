@@ -19,8 +19,8 @@ class Modular_TwoPLChecker:
             if other_transaction == asking_transaction:
                 continue  # Skip self
             for for_resource, _  in self.resources_to_use[str(other_transaction)]:
-                print("for_r",for_resource)
-                print("res",resource)
+                #print("for_r",for_resource)
+                #print("res",resource)
                 if for_resource == resource:
                     return False  # Another transaction still needs the resource → can't release it
 
@@ -116,7 +116,7 @@ class Modular_TwoPLChecker:
                 self.phase[str(transaction)] = False
             if not anticipating:
                 self.resources_to_use[str(transaction)].remove((resource, "W"))
-                if self.phase[str(transaction)]:
+                if not self.phase[str(transaction)]:
                     self.lock[resource] = None
             return True
 
@@ -170,11 +170,13 @@ class Modular_TwoPLChecker:
     # Main function to check if the entire schedule respects 2PL
     def two_pl_checker(self):
         for operation in self.schedule:
-            print(operation)
-            print(self.lock)
+            #print(operation)
+            #print(self.lock)
             action, tr, resource = operation
 
             result = self.check_if_action_legal(tr, action, resource, False, [])
+            #print(self.lock)
+            #print("--------------------")
             if not result:
                 return False  # If even one operation violates 2PL → invalid schedule
 
