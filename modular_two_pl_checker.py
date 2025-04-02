@@ -13,15 +13,16 @@ class Modular_TwoPLChecker:
         self.resources_to_use = resources_to_use  # Resources each transaction will actually use
 
     # Function to check if other transactions can anticipate their locks to allow this one to proceed
-    def anticipate_locks(self, asking_transaction, resource, loop = []):
+    def anticipate_locks(self, action, asking_transaction, resource, loop = []):
         # First loop: Check if the other transactions that hold the lock still need to use the resource
         for other_transaction in self.lock[str(resource)][1]:
             if other_transaction == asking_transaction:
                 continue  # Skip self
-            for t in self.resources_to_use[str(other_transaction)]:
-                if t[0] == resource:
+            for _, for_resource in self.resources_to_use[str(other_transaction)]:
+                if for_resource == resource:
                     return False  # Another transaction still needs the resource → can't release it
 
+        loop.append((action, asking_transaction, resource))
         # Second loop: Check if those transactions can anticipate all their other locks
         for other_transaction in self.lock[str(resource)][1]:
             if other_transaction == asking_transaction:
@@ -31,8 +32,8 @@ class Modular_TwoPLChecker:
                 other_tuple = (other_action, other_transaction, other_resource)
                 if other_tuple in loop:
                     return False  # Avoid infinite loops / circular dependencies
-                loop.append(other_tuple)
-                result = self.check_if_lock_available(other_transaction, other_action, other_resource, True, loop.copy())
+                l = deepcopy(loop)
+                result = self.check_if_lock_available(action, other_transaction, other_action, other_resource, True, l)
                 if not result:
                     return False
 
@@ -42,12 +43,11 @@ class Modular_TwoPLChecker:
     def acquire_new_lock(self, transaction, action, resource, anticipating):
         self.lock[resource] = (action, [transaction])  # Assign the lock
         self.resources_needed[str(transaction)].remove((resource, action))  # Mark resource as locked
-
+        if not self.resources_needed[str(transaction)]:
+            self.phase[str(transaction)] = False
         if not anticipating:
             self.resources_to_use[str(transaction)].remove((resource, action))
-            if not self.resources_to_use[str(transaction)]:
-                # Transaction is now in the shrinking phase
-                self.phase[str(transaction)] = False
+            if not self.phase[str(transaction)]:
                 self.lock[resource] = None  # Release lock
 
         return True
@@ -65,7 +65,7 @@ class Modular_TwoPLChecker:
         self.resources_to_use[str(transaction)].remove((resource, action))
         # If i don't have any other resource to lock
         if not self.resources_to_use[str(transaction)]:
-            self.phase[str(transaction)] = False  # Enter shrinking phase
+            self.phase[str(transaction)] = False  # Enter shrinking phase, maybe use function to ensure lo leave locks that has been taken during growing phase, used and never left? If not function, ok beacuse it work but implicitly
             if action == "W":
                 self.lock[resource] = None
             else:
@@ -77,7 +77,7 @@ class Modular_TwoPLChecker:
         return True
 
     
-    def handle_read_lock(self, transaction, resource, anticipating, loop):
+    def handle_read_lock(self, action, transaction, resource, anticipating, loop):
         if not self.phase[str(transaction)]:
             return False  # Can't acquire locks in shrinking phase
 
@@ -87,32 +87,35 @@ class Modular_TwoPLChecker:
             # Grant shared read lock
             holders.append(transaction)
             self.resources_needed[str(transaction)].remove((resource, "R"))
+            if not self.resources_needed[str(transaction)]:
+                self.phase[str(transaction)] = False
             if not anticipating:
                 self.resources_to_use[str(transaction)].remove((resource, "R"))
-                if not self.resources_to_use[str(transaction)]:
-                    self.phase[str(transaction)] = False
+                if not self.phase[str(transaction)]:
                     holders.remove(transaction)
                     if not holders:
                         self.lock[resource] = None
             return True
-
-        elif self.anticipate_locks(transaction, resource, loop):
+        #No shared lock possible, can holder release it so I can read?
+        elif self.anticipate_locks(action, transaction, resource, loop):
             return self.acquire_new_lock(transaction, "R", resource, anticipating)
 
         return False
 
     
-    def handle_upgrade_lock(self, transaction, resource, anticipating, loop):
+    def handle_write_lock(self, action, transaction, resource, anticipating, loop):
         if not self.phase[str(transaction)]:
             return False
 
-        if self.lock[resource] == ("R", [transaction]) or self.anticipate_locks(transaction, resource, loop):
+        #Either upgrade lock or acquiring from scratch
+        if self.lock[resource] == ("R", [transaction]) or self.anticipate_locks(action, transaction, resource, loop):
             self.lock[resource] = ("W", [transaction])
             self.resources_needed[str(transaction)].remove((resource, "W"))
+            if not self.resources_needed[str(transaction)]:
+                self.phase[str(transaction)] = False
             if not anticipating:
                 self.resources_to_use[str(transaction)].remove((resource, "W"))
-                if not self.resources_to_use[str(transaction)]:
-                    self.phase[str(transaction)] = False
+                if self.phase[str(transaction)]:
                     self.lock[resource] = None
             return True
 
@@ -131,11 +134,11 @@ class Modular_TwoPLChecker:
 
         # Case 3: Resource is locked, but a shared read is still possible
         if action == "R":
-            return self.handle_read_lock(transaction, resource, anticipating, loop)
+            return self.handle_read_lock(action, transaction, resource, anticipating, loop)
 
         # Case 4: Handle write request (either from scratch or upgrade)
         if action == "W":
-            return self.handle_upgrade_lock(transaction, resource, anticipating, loop)
+            return self.handle_write_lock(action, transaction, resource, anticipating, loop)
 
         return False
 
