@@ -1,5 +1,7 @@
 from copy import deepcopy
-from schedules import schedules
+from schedules import *
+import time
+
 
 # Class that checks whether a schedule follows the Two-Phase Locking (2PL) protocol
 class Modular_TwoPLChecker:
@@ -181,7 +183,7 @@ class Modular_TwoPLChecker:
                 return False  # If even one operation violates 2PL → invalid schedule
 
         return True  # All operations respected 2PL
-
+'''
 # Example main logic (incorrect __name__ check fixed below)
 if __name__ == "__main__":
     for s in schedules:
@@ -194,5 +196,24 @@ if __name__ == "__main__":
         checker.parse()
         checker.parse_lock()
         result = checker.two_pl_checker()
+
         
-        print(f'Schedule: {schedule} is 2PL? {result}')
+        print(f'Schedule: {schedule} is 2PL? {result}')'
+'''
+if __name__ == "__main__":
+    start_time = time.perf_counter() # Avvia il timer
+    for i in range(0,10000):
+        two_pl = deepcopy(two_pl_schedules)  # copia completa dei dati
+        for schedule in two_pl:
+            info = schedule.pop(0)
+            n_transactions = info[0]
+            resources = info[1]
+            pl = Modular_TwoPLChecker(n_transactions, schedule, resources, {}, {})
+            pl.parse()
+            pl.parse_lock()
+            result = pl.two_pl_checker()
+            #print(f'Lo schedule: {schedule} è 2pl? {pl.two_pl_checker()}')
+
+    end_time = time.perf_counter()  # Ferma il timer 
+    delta = (end_time-start_time)
+    print(f"TWO_PL_LOCKFUL - Elapsed time: {delta}\n*****************")

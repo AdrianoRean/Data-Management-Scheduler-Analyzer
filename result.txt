@@ -18,30 +18,30 @@ For schedule 13 which is none the best checker is: parallel_checker
 For schedule 14 which is none the best checker is: parallel_checker
 For schedule 15 which is none the best checker is: parallel_checker
 For schedule 16 which is none the best checker is: parallel_checker
-For schedule 17 which is none the best checker is: sequential_checker
+For schedule 17 which is none the best checker is: parallel_checker
 For schedule 18 which is none the best checker is: parallel_checker
-For schedule 19 which is none the best checker is: sequential_checker
+For schedule 19 which is none the best checker is: parallel_checker
 
 ##############################
 
 Results for two_pl
-For parallel_checker, sequential_checker checkers: 4.6728500008915336e-07 --- 2.174166666312279e-07.
+For parallel_checker, sequential_checker checkers: 6.71496850043089e-05 --- 3.2660928335099015e-05.
 Hence winner is sequential_checker
 *************************
 Results for conflict
-For parallel_checker, sequential_checker checkers: 8.166625002559158e-07 --- 7.259500002191999e-07.
+For parallel_checker, sequential_checker checkers: 0.00012175955249958861 --- 0.00010717264249215077.
 Hence winner is sequential_checker
 *************************
 Results for view
-For parallel_checker, sequential_checker checkers: 3.211703333060238e-06 --- 3.4778899998248864e-06.
+For parallel_checker, sequential_checker checkers: 0.0004884060599932127 --- 0.000518888990008054.
 Hence winner is parallel_checker
 *************************
 Results for none
-For parallel_checker, sequential_checker checkers: 9.692197142846582e-06 --- 9.642775714395872e-06.
-Hence winner is sequential_checker
+For parallel_checker, sequential_checker checkers: 0.0014262041585749103 --- 0.0014471797599997704.
+Hence winner is parallel_checker
 *************************
 Results for overall
-For parallel_checker, sequential_checker checkers: 1.418784797625189e-05 --- 1.4064032381071185e-05.
-Hence winner is sequential_checker
+For parallel_checker, sequential_checker checkers: 0.0021035194560720203 --- 0.0021059023208350744.
+Hence winner is parallel_checker
 *************************
 ##############################
