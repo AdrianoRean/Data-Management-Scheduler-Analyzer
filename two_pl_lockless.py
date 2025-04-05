@@ -136,13 +136,13 @@ class TwoPLChecker:
                 self.clean_transaction_involved(tr)
 
         return True
-'''
+#'''
 if __name__ == "__main__":
 
     start_time = time.perf_counter() # Avvia il timer
-    for i in range(0,10000):
-        two_pl = copy.deepcopy(schedules)  # copia completa dei dati
-        for schedule in two_pl:
+    for i in range(0,100000):
+        schedules_copy = copy.deepcopy(schedules)  # copia completa dei dati
+        for schedule in schedules_copy:
             info = schedule.pop(0)
             n_transactions = info[0]
             resources = info[1]
@@ -154,8 +154,8 @@ if __name__ == "__main__":
     end_time = time.perf_counter()  # Ferma il timer 
     delta = (end_time-start_time)
     print(f"TWO_PL_LOCKLESS - Elapsed time: {delta}\n*****************")
-'''
 #'''
+'''
 if __name__ == "__main__":
 
     for schedule in maybe_schedule:
@@ -166,4 +166,4 @@ if __name__ == "__main__":
         pl.parse()
         #print(f'Lo schedule: {schedule} è 2pl? {pl.two_pl_checker()}')
         print(f'Lo schedule è 2pl? {pl.two_pl_checker()}')
-#'''
+'''

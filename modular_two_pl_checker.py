@@ -200,9 +200,9 @@ if __name__ == "__main__":
 '''
 if __name__ == "__main__":
     start_time = time.perf_counter() # Avvia il timer
-    for i in range(0,10000):
-        two_pl = deepcopy(schedules)  # copia completa dei dati
-        for schedule in two_pl:
+    for i in range(0,100000):
+        schedules_copy = deepcopy(schedules)  # copia completa dei dati
+        for schedule in schedules_copy:
             info = schedule.pop(0)
             n_transactions = info[0]
             resources = info[1]

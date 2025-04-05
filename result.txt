@@ -25,23 +25,23 @@ For schedule 19 which is none the best checker is: parallel_checker
 ##############################
 
 Results for two_pl
-For parallel_checker, sequential_checker checkers: 6.71496850043089e-05 --- 3.2660928335099015e-05.
+For parallel_checker, sequential_checker checkers: 4.317061333314693e-05 --- 2.053874833274752e-05.
 Hence winner is sequential_checker
 *************************
 Results for conflict
-For parallel_checker, sequential_checker checkers: 0.00012175955249958861 --- 0.00010717264249215077.
+For parallel_checker, sequential_checker checkers: 7.75368750002201e-05 --- 6.839451249968533e-05.
 Hence winner is sequential_checker
 *************************
 Results for view
-For parallel_checker, sequential_checker checkers: 0.0004884060599932127 --- 0.000518888990008054.
+For parallel_checker, sequential_checker checkers: 0.0003111175599996386 --- 0.00033098081666707157.
 Hence winner is parallel_checker
 *************************
 Results for none
-For parallel_checker, sequential_checker checkers: 0.0014262041585749103 --- 0.0014471797599997704.
+For parallel_checker, sequential_checker checkers: 0.0009090457557143379 --- 0.000917801178571699.
 Hence winner is parallel_checker
 *************************
 Results for overall
-For parallel_checker, sequential_checker checkers: 0.0021035194560720203 --- 0.0021059023208350744.
-Hence winner is parallel_checker
+For parallel_checker, sequential_checker checkers: 0.0013408708040473435 --- 0.0013377152560712035.
+Hence winner is sequential_checker
 *************************
 ##############################
