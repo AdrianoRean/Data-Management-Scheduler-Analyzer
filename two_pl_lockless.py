@@ -40,14 +40,21 @@ class TwoPLChecker:
                 if a != "R":
                     return False
             return True 
-        if transaction==previous_transaction and index==1:
-            return True
+        
+        #if transaction==previous_transaction and index==1:
+        #    return True
+        
         # Upgrading lock or there was shared lock?
         elif transaction==previous_transaction:
-            
-            for (transaction_involved, _) in self.transactions_involved[resource]:
+            #print("upgrade lock or anticipate other locks")
+            index_action = self.transactions_involved[resource].index((transaction,action))
+            #print("index action",index_action)
+            for (transaction_involved, action_involved) in self.transactions_involved[resource]:
+                index_other_action = self.transactions_involved[resource].index((transaction_involved,action_involved))
                 if transaction_involved == transaction:
                     continue
+                if index_other_action > index_action:
+                    return True
 
                 for (other_resource, other_action) in self.resources_needed[str(transaction_involved)]:
                     other_index = self.transactions_involved[other_resource].index((transaction_involved,other_action))
@@ -112,7 +119,7 @@ class TwoPLChecker:
         
         for operation in (self.schedule):
             action,tr,resource = operation
-
+            #print(operation)
             # se posso eseguire l'azione -> nessuno ha il lock oppure la transazione che lo 
             #                               detiene può lasciarlo perché non ha alcuna altra
             #                               risorsa da lockare
@@ -129,7 +136,7 @@ class TwoPLChecker:
                 self.clean_transaction_involved(tr)
 
         return True
-#'''
+'''
 if __name__ == "__main__":
 
     start_time = time.perf_counter() # Avvia il timer
@@ -147,14 +154,16 @@ if __name__ == "__main__":
     end_time = time.perf_counter()  # Ferma il timer 
     delta = (end_time-start_time)
     print(f"TWO_PL_LOCKLESS - Elapsed time: {delta}\n*****************")
+'''
 #'''
-'''if __name__ == "__main__":
+if __name__ == "__main__":
 
-    for schedule in conflict_schedules:
+    for schedule in maybe_schedule:
         info = schedule.pop(0)
         n_transactions = info[0]
         resources = info[1]
         pl = TwoPLChecker(schedule,{},{})
         pl.parse()
         #print(f'Lo schedule: {schedule} è 2pl? {pl.two_pl_checker()}')
-        print(f'Lo schedule è 2pl? {pl.two_pl_checker()}')'''
+        print(f'Lo schedule è 2pl? {pl.two_pl_checker()}')
+#'''
